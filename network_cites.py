@@ -14,7 +14,7 @@ st.title('CITES Trade network')
 st.markdown('Full CITES Trade Database Download. Version [2022.1]. Compiled by UNEP-WCMC, Cambridge, UK for the CITES Secretariat, Geneva, Switzerland. Available at: trade.cites.org [https://trade.cites.org]')
 
 sp_filter = st.selectbox("Select/Type the Taxon", pd.unique(tax["Taxon"].sort_values()))
-print(sp_filter)
+#print(sp_filter)
 if sp_filter:
     query = "select c.Importer as importer, c.Exporter as exporter, count(*) as weight from 'data/cites_data.parquet' c where c.Taxon = "
     query_stmn = query + "'" + sp_filter + "' group by c.Importer, c.Exporter"
@@ -38,9 +38,9 @@ if sp_filter:
 
     # Initiate PyVis network object
     if directed:
-        anim_net = Network(height='465px', bgcolor='white', font_color='blue', directed=True)
+        anim_net = Network(height='1000px', bgcolor='white', font_color='blue', directed=True)
     else:
-        anim_net = Network(height='465px', bgcolor='white', font_color='blue')
+        anim_net = Network(height='1000px', bgcolor='white', font_color='blue')
 
     # Take Networkx graph and translate it to a PyVis graph format
     anim_net.from_nx(species)
@@ -71,7 +71,8 @@ if sp_filter:
         HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
 
     # Load HTML file in HTML component for display on Streamlit page
-    components.html(HtmlFile.read(), height=800)
+    components.html(HtmlFile.read(), height=1100)
+    HtmlFile.close()
     #st.dataframe(df2)
 
 
