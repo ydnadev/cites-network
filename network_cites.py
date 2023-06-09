@@ -11,7 +11,8 @@ tax = dk.query(''' select distinct c.Taxon from 'data/cites_data.parquet' c ''')
 
 # Set header title
 st.title('CITES Trade network')
-st.markdown('Full CITES Trade Database Download. Version [2022.1]. Compiled by UNEP-WCMC, Cambridge, UK for the CITES Secretariat, Geneva, Switzerland. Available at: trade.cites.org [https://trade.cites.org]')
+st.markdown('Full CITES Trade Database Download. Version [2022.1]. Compiled by UNEP-WCMC, Cambridge, UK for the CITES Secretariat, Geneva, Switzerland. Available at: [https://trade.cites.org]')
+st.markdown('List of Contarcting Parties with ISO codes - [https://cites.org/eng/disc/parties/chronolo.php]')
 
 sp_filter = st.selectbox("Select/Type the Taxon", pd.unique(tax["Taxon"].sort_values()))
 #print(sp_filter)
