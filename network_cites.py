@@ -12,7 +12,7 @@ tax = dk.query(''' select distinct c.Taxon from 'data/cites_data.parquet' c ''')
 # Set header title
 st.title('CITES Trade network')
 st.markdown('Full CITES Trade Database Download. Version [2022.1]. Compiled by UNEP-WCMC, Cambridge, UK for the CITES Secretariat, Geneva, Switzerland. Available at: [https://trade.cites.org]')
-st.markdown('List of Contarcting Parties with ISO codes - [https://cites.org/eng/disc/parties/chronolo.php]')
+st.markdown('List of Contracting Parties with ISO codes - [https://cites.org/eng/disc/parties/chronolo.php]')
 
 sp_filter = st.selectbox("Select/Type the Taxon", pd.unique(tax["Taxon"].sort_values()))
 #print(sp_filter)
@@ -20,22 +20,15 @@ if sp_filter:
     query = "select c.Importer as importer, c.Exporter as exporter, count(*) as weight from 'data/cites_data.parquet' c where c.Taxon = "
     query_stmn = query + "'" + sp_filter + "' group by c.Importer, c.Exporter"
     df2 = dk.query(query_stmn).df()
-    im_filter = st.selectbox("Select/Type the Importer", pd.unique(df2["importer"].sort_values()))
-    ex_filter = st.selectbox("Select/Type the Exporter", pd.unique(df2["exporter"].sort_values()))
+    im_filter = st.selectbox("Select/Type the :red[Importer]", pd.unique(df2["importer"].sort_values()))
+    ex_filter = st.selectbox("Select/Type the :orange[Exporter]", pd.unique(df2["exporter"].sort_values()))
     directed = st.checkbox('Directed')
     weighted = st.checkbox('Weighted by trades')
     
-    if im_filter:
-        for idx, row in df2.iterrows():
-            if row['importer'] == im_filter:
-                row['color'] = 'red'
-            else:
-                row['color'] = 'blue'
-
     if weighted:
-        species = nx.from_pandas_edgelist(df2, 'importer', 'exporter', 'weight')
+        species = nx.from_pandas_edgelist(df2, 'exporter', 'importer')
     else:
-        species = nx.from_pandas_edgelist(df2, 'importer', 'exporter')
+        species = nx.from_pandas_edgelist(df2, 'exporter', 'importer')
 
     # Initiate PyVis network object
     if directed:
