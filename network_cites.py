@@ -34,8 +34,8 @@ if sp_filter:
     df2 = dk.query(query_stmn).df()
 
     # Select Importer and Exporter colors
-    im_filter = st.selectbox("Select/Type the :red[Importer]", pd.unique(df2["importer"].sort_values()))
     ex_filter = st.selectbox("Select/Type the :orange[Exporter]", pd.unique(df2["exporter"].sort_values()))
+    im_filter = st.selectbox("Select/Type the :red[Importer]", pd.unique(df2["importer"].sort_values()))
 
     # Select if directed or weighted and Initiated PyViz graph
     directed = st.checkbox('Directed')
@@ -54,10 +54,10 @@ if sp_filter:
 
     # Color based on import/export
     for node in anim_net.nodes:
-        if node['id'] == im_filter:
-            node['color'] = 'red'
-        elif node['id'] == ex_filter:
+        if node['id'] == ex_filter:
             node['color'] = 'orange'
+        elif node['id'] == im_filter:
+            node['color'] = 'red'
         else:
             node['color'] = 'grey'
 
