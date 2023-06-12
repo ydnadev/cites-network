@@ -82,4 +82,6 @@ if sp_filter:
     components.html(HtmlFile.read(), height=1100)
     HtmlFile.close()
 
+    st.dataframe(df2)
+
 st.markdown('[https://github.com/ydnadev/cites-network]')
