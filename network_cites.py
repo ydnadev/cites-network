@@ -26,7 +26,7 @@ if sp_filter:
     weighted = st.checkbox('Weighted by trades')
     
     if weighted:
-        species = nx.from_pandas_edgelist(df2, 'exporter', 'importer')
+        species = nx.from_pandas_edgelist(df2, 'exporter', 'importer', 'weight')
     else:
         species = nx.from_pandas_edgelist(df2, 'exporter', 'importer')
 
