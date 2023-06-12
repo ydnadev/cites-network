@@ -15,22 +15,35 @@ st.markdown('Full CITES Trade Database Download. Version [2022.1]. Compiled by U
 st.markdown('List of Contracting Parties with ISO codes - [https://cites.org/eng/disc/parties/chronolo.php]')
 
 sp_filter = st.selectbox("Select/Type the Taxon", pd.unique(tax["Taxon"].sort_values()))
-#print(sp_filter)
+
 if sp_filter:
-    query = "select c.Importer as importer, c.Exporter as exporter, count(*) as weight from 'data/cites_data.parquet' c where c.Taxon = "
-    query_stmn = query + "'" + sp_filter + "' group by c.Importer, c.Exporter"
+   
+    # Filter for year of trade
+    yr_check = st.checkbox('Select Year')
+    if yr_check:
+        yr_query = "select distinct c.Year from 'data/cites_data.parquet' c where c.Taxon = " + "'" + sp_filter + "'"
+        yr = dk.query(yr_query).df()
+        yr_filter = st.selectbox("Select/Type the Year", pd.unique(yr["Year"].sort_values()))
+        query = "select c.Importer as importer, c.Exporter as exporter, count(*) as weight from 'data/cites_data.parquet' c where c.Taxon = "
+        query_stmn = query + "'" + sp_filter + "' and c.Year = '" + yr_filter.astype(str) + "' group by c.Importer, c.Exporter"
+    else: 
+        query = "select c.Importer as importer, c.Exporter as exporter, count(*) as weight from 'data/cites_data.parquet' c where c.Taxon = "
+        query_stmn = query + "'" + sp_filter + "' group by c.Importer, c.Exporter"
+
+    # Query data 
     df2 = dk.query(query_stmn).df()
+
+    # Select Importer and Exporter colors
     im_filter = st.selectbox("Select/Type the :red[Importer]", pd.unique(df2["importer"].sort_values()))
     ex_filter = st.selectbox("Select/Type the :orange[Exporter]", pd.unique(df2["exporter"].sort_values()))
+
+    # Select if directed or weighted and Initiated PyViz graph
     directed = st.checkbox('Directed')
     weighted = st.checkbox('Weighted by trades')
-    
     if weighted:
         species = nx.from_pandas_edgelist(df2, 'exporter', 'importer', 'weight')
     else:
         species = nx.from_pandas_edgelist(df2, 'exporter', 'importer')
-
-    # Initiate PyVis network object
     if directed:
         anim_net = Network(height='1000px', bgcolor='white', font_color='blue', directed=True)
     else:
@@ -39,6 +52,7 @@ if sp_filter:
     # Take Networkx graph and translate it to a PyVis graph format
     anim_net.from_nx(species)
 
+    # Color based on import/export
     for node in anim_net.nodes:
         if node['id'] == im_filter:
             node['color'] = 'red'
@@ -67,6 +81,5 @@ if sp_filter:
     # Load HTML file in HTML component for display on Streamlit page
     components.html(HtmlFile.read(), height=1100)
     HtmlFile.close()
-    #st.dataframe(df2)
 
 st.markdown('[https://github.com/ydnadev/cites-network]')
