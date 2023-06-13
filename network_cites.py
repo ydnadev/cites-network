@@ -53,11 +53,11 @@ if sp_filter:
             register = 0
         else:
             term_filter = st.selectbox("Select/Type the Term", pd.unique(term["Term"].sort_values()))
-            query = "select c.Exporter as exporter, c.Importer as importer, sum(c.Quantity) as weight from 'data/cites_data.parquet' c where c.Taxon = '" + sp_filter + "' and c.Year >= '" + str(yrs[0]) + "' and c.Year <= '" + str(yrs[1]) + "' and c.Term = '" + term_filter + "' group by c.Exporter, c.Importer"
+            query = "select c.Exporter as exporter, c.export_ctry, c.Importer as importer, c.import_ctry, sum(c.Quantity) as weight from 'data/cites_data.parquet' c where c.Taxon = '" + sp_filter + "' and c.Year >= '" + str(yrs[0]) + "' and c.Year <= '" + str(yrs[1]) + "' and c.Term = '" + term_filter + "' group by c.Exporter, c.export_ctry, c.Importer, c.import_ctry"
             query_full = "select * from 'data/cites_data.parquet' c where c.Taxon = '" + sp_filter + "' and c.Year >= '" + str(yrs[0]) + "' and c.Year <= '" + str(yrs[1]) + "' and c.Term = '" + term_filter + "'"
             register = 1
     else:
-        query = "select c.Exporter as exporter, c.Importer as importer, sum(c.Quantity) as weight from 'data/cites_data.parquet' c where c.Taxon = '" + sp_filter + "' and c.Year >= '" + str(yrs[0]) + "' and c.Year <= '" + str(yrs[1]) + "' group by c.Exporter, c.Importer"
+        query = "select c.Exporter as exporter, c.export_ctry, c.Importer as importer, c.import_ctry, sum(c.Quantity) as weight from 'data/cites_data.parquet' c where c.Taxon = '" + sp_filter + "' and c.Year >= '" + str(yrs[0]) + "' and c.Year <= '" + str(yrs[1]) + "' group by c.Exporter, c.export_ctry, c.Importer, c.import_ctry"
         query_full = "select * from 'data/cites_data.parquet' c where c.Taxon = '" + sp_filter + "' and c.Year >= '" + str(yrs[0]) + "' and c.Year <= '" + str(yrs[1]) + "'" 
         register = 1
     # Query data 
@@ -68,63 +68,69 @@ if sp_filter:
     if data.empty:
         st.write('No results, please expand years.')
     else:
-        full_data = dk.query(query_full).df()
-        full_data['Id'] = full_data['Id'].astype(str)
-        full_data['Year'] = full_data['Year'].astype(str)
+        num_results = len(data.index)
+        res_stmnt = 'Results returned: ' + str(num_results)
+        st.write(res_stmnt)
+        if num_results < 1000:
+            full_data = dk.query(query_full).df()
+            full_data['Id'] = full_data['Id'].astype(str)
+            full_data['Year'] = full_data['Year'].astype(str)
 
+            # Select Importer and Exporter colors
+            ex_filter = st.selectbox("Select/Type the :orange[Exporter]", pd.unique(data["export_ctry"].sort_values()))
+            im_filter = st.selectbox("Select/Type the :red[Importer]", pd.unique(data["import_ctry"].sort_values()))
 
-        # Select Importer and Exporter colors
-        ex_filter = st.selectbox("Select/Type the :orange[Exporter]", pd.unique(data["exporter"].sort_values()))
-        im_filter = st.selectbox("Select/Type the :red[Importer]", pd.unique(data["importer"].sort_values()))
-
-        # Select if directed or weighted and Initiated PyViz graph
-        #directed = st.checkbox('Directed')
-        weighted = st.checkbox('Weighted by trades')
-        if weighted:
-            species = nx.from_pandas_edgelist(data, 'exporter', 'importer', 'weight')
-        else:
-            species = nx.from_pandas_edgelist(data, 'exporter', 'importer')
-        #if directed:
-        #    # directed is not working properly, need to calculate a net flow for this to work, hiding for now
-        #    #anim_net = Network(height='900px', bgcolor='white', font_color='blue', directed=True)
-        #else:
-        #    anim_net = Network(height='900px', bgcolor='white', font_color='blue')
-        anim_net = Network(height='900px', bgcolor='white', font_color='blue')
-
-        # Take Networkx graph and translate it to a PyVis graph format
-        anim_net.from_nx(species)
-
-        # Color based on import/export
-        for node in anim_net.nodes:
-            if node['id'] == ex_filter:
-                node['color'] = 'orange'
-            elif node['id'] == im_filter:
-                node['color'] = 'red'
+            # Select if directed or weighted and Initiated PyViz graph
+            #directed = st.checkbox('Directed')
+            weighted = st.checkbox('Weighted by Quantity')
+            if weighted:
+                species = nx.from_pandas_edgelist(data, 'export_ctry', 'import_ctry', 'weight')
             else:
-                node['color'] = 'grey'
+                species = nx.from_pandas_edgelist(data, 'export_ctry', 'import_ctry')
+            #if directed:
+            #    # directed is not working properly, need to calculate a net flow for this to work, hiding for now
+            #    #anim_net = Network(height='900px', bgcolor='white', font_color='blue', directed=True)
+            #else:
+            #    anim_net = Network(height='900px', bgcolor='white', font_color='blue')
+            anim_net = Network(height='900px', bgcolor='white', font_color='blue')
 
-        # Generate network with specific layout settings
-        anim_net.repulsion(node_distance=420, central_gravity=0.33,
-                           spring_length=110, spring_strength=0.10,
-                           damping=0.95)
+            # Take Networkx graph and translate it to a PyVis graph format
+            anim_net.from_nx(species)
 
-        # Save and read graph as HTML file (on Streamlit Sharing)
-        try:
-            path = '/tmp'
-            anim_net.save_graph(f'{path}/pyvis_graph.html')
-            HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
+            # Color based on import/export
+            for node in anim_net.nodes:
+                if node['id'] == ex_filter:
+                    node['color'] = 'orange'
+                elif node['id'] == im_filter:
+                    node['color'] = 'red'
+                else:
+                    node['color'] = 'grey'
 
-        # Save and read graph as HTML file (locally)
-        except:
-            path = 'html_files'
-            anim_net.save_graph(f'{path}/pyvis_graph.html')
-            HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
+            # Generate network with specific layout settings
+            anim_net.repulsion(node_distance=420, central_gravity=0.33,
+                               spring_length=110, spring_strength=0.10,
+                               damping=0.95)
 
-        # Load HTML file in HTML component for display on Streamlit page
-        components.html(HtmlFile.read(), height=1000, width=1000)
-        HtmlFile.close()
+            # Save and read graph as HTML file (on Streamlit Sharing)
+            try:
+                path = '/tmp'
+                anim_net.save_graph(f'{path}/pyvis_graph.html')
+                HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
 
-        st.dataframe(data)
-        st.dataframe(full_data.set_index(full_data.columns[0]))
+            # Save and read graph as HTML file (locally)
+            except:
+                path = 'html_files'
+                anim_net.save_graph(f'{path}/pyvis_graph.html')
+                HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
+
+            # Load HTML file in HTML component for display on Streamlit page
+            components.html(HtmlFile.read(), height=1000, width=1000)
+            HtmlFile.close()
+
+            st.dataframe(data)
+            st.dataframe(full_data.set_index(full_data.columns[0]))
+
+        else:
+            st.write('Too many nodes to plot, please narrow search.')
 
 st.markdown('[https://github.com/ydnadev/cites-network]')
