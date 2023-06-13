@@ -84,12 +84,12 @@ if sp_filter:
             species = nx.from_pandas_edgelist(data, 'exporter', 'importer', 'weight')
         else:
             species = nx.from_pandas_edgelist(data, 'exporter', 'importer')
-        if directed:
-            # directed is not working properly, need to calculate a net flow for this to work, hiding for now
-            #anim_net = Network(height='900px', bgcolor='white', font_color='blue', directed=True)
-            anim_net = Network(height='900px', bgcolor='white', font_color='blue')
-        else:
-            anim_net = Network(height='900px', bgcolor='white', font_color='blue')
+        #if directed:
+        #    # directed is not working properly, need to calculate a net flow for this to work, hiding for now
+        #    #anim_net = Network(height='900px', bgcolor='white', font_color='blue', directed=True)
+        #else:
+        #    anim_net = Network(height='900px', bgcolor='white', font_color='blue')
+        anim_net = Network(height='900px', bgcolor='white', font_color='blue')
 
         # Take Networkx graph and translate it to a PyVis graph format
         anim_net.from_nx(species)
