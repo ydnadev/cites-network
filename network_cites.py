@@ -5,6 +5,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 from pyvis.network import Network
 
+st.set_page_config(layout='wide')
 # Set header title
 st.title('CITES Trade network')
 st.markdown('Full CITES Trade Database Download. Version [2022.1]. Compiled by UNEP-WCMC, Cambridge, UK for the CITES Secretariat, Geneva, Switzerland. Available at: [https://trade.cites.org]')
@@ -40,97 +41,88 @@ sp_filter = st.selectbox("Select/Type the Taxon", pd.unique(tax["Taxon"].sort_va
 if sp_filter:
    
     # Filter for year of trade
-    yr_check = st.checkbox('Select Year')
     term_check = st.checkbox('Select Term')
-    if yr_check:
-        yr_query = "select distinct c.Year from 'data/cites_data.parquet' c where c.Taxon = " + "'" + sp_filter + "'"
-        yr = dk.query(yr_query).df()
-        yr_filter = st.selectbox("Select/Type the Year", pd.unique(yr["Year"].sort_values()))
-        if term_check:
-            term_query = "select distinct c.Term from 'data/cites_data.parquet' c where c.Taxon = " + "'" + sp_filter + "' and c.Year = '" + yr_filter.astype(str) + "'" 
-            term = dk.query(term_query).df()
-            term_filter = st.selectbox("Select/Type the Term", pd.unique(term["Term"].sort_values()))
-            query = "select c.Importer as importer, c.Exporter as exporter, sum(c.Quantity) as weight from 'data/cites_data.parquet' c where c.Taxon = "
-            query_stmn = query + "'" + sp_filter + "' and c.Year = '" + yr_filter.astype(str) + "' and c.Term = '" + term_filter + "' group by c.Importer, c.Exporter"
-            query_full = "select * from 'data/cites_data.parquet' c where c.Taxon = "
-            query_full_stmn = query_full + "'" + sp_filter + "' and c.Year = '" + yr_filter.astype(str) + "' and c.Term = '" + term_filter + "'"
+    yrs = st.slider(
+            'Select Trade Years',
+            1974, 2023, (1975,2022))
+    if term_check:
+        term_query = "select distinct c.Term from 'data/cites_data.parquet' c where c.Taxon = '" + sp_filter + "' and c.Year >= '" + str(yrs[0]) + "' and c.Year <= '" + str(yrs[1]) + "'" 
+        term = dk.query(term_query).df()
+        if term.empty:
+            # register to track whether term query is empty
+            register = 0
         else:
-            query = "select c.Importer as importer, c.Exporter as exporter, sum(c.Quantity) as weight from 'data/cites_data.parquet' c where c.Taxon = "
-            query_stmn = query + "'" + sp_filter + "' and c.Year = '" + yr_filter.astype(str) + "' group by c.Importer, c.Exporter"
-            query_full = "select * from 'data/cites_data.parquet' c where c.Taxon = "
-            query_full_stmn = query_full + "'" + sp_filter + "' and c.Year = '" + yr_filter.astype(str) + "'"
-    else: 
-        if term_check:
-            term_query = "select distinct c.Term from 'data/cites_data.parquet' c where c.Taxon = " + "'" + sp_filter + "'" 
-            term = dk.query(term_query).df()
             term_filter = st.selectbox("Select/Type the Term", pd.unique(term["Term"].sort_values()))
-            query = "select c.Importer as importer, c.Exporter as exporter, sum(c.Quantity) as weight from 'data/cites_data.parquet' c where c.Taxon = "
-            query_stmn = query + "'" + sp_filter + "' and c.Term = '" + term_filter + "' group by c.Importer, c.Exporter"
-            query_full = "select * from 'data/cites_data.parquet' c where c.Taxon = "
-            query_full_stmn = query_full + "'" + sp_filter + "' and c.Term = '" + term_filter + "'"
-        else:
-            query = "select c.Importer as importer, c.Exporter as exporter, sum(c.Quantity) as weight from 'data/cites_data.parquet' c where c.Taxon = "
-            query_stmn = query + "'" + sp_filter + "' group by c.Importer, c.Exporter"
-            query_full = "select * from 'data/cites_data.parquet' c where c.Taxon = "
-            query_full_stmn = query_full + "'" + sp_filter + "'"
-
+            query = "select c.Importer as importer, c.Exporter as exporter, sum(c.Quantity) as weight from 'data/cites_data.parquet' c where c.Taxon = '" + sp_filter + "' and c.Year >= '" + str(yrs[0]) + "' and c.Year <= '" + str(yrs[1]) + "' and c.Term = '" + term_filter + "' group by c.Importer, c.Exporter"
+            query_full = "select * from 'data/cites_data.parquet' c where c.Taxon = '" + sp_filter + "' and c.Year >= '" + str(yrs[0]) + "' and c.Year <= '" + str(yrs[1]) + "' and c.Term = '" + term_filter + "'"
+            register = 1
+    else:
+        query = "select c.Importer as importer, c.Exporter as exporter, sum(c.Quantity) as weight from 'data/cites_data.parquet' c where c.Taxon = '" + sp_filter + "' and c.Year >= '" + str(yrs[0]) + "' and c.Year <= '" + str(yrs[1]) + "' group by c.Importer, c.Exporter"
+        query_full = "select * from 'data/cites_data.parquet' c where c.Taxon = '" + sp_filter + "' and c.Year >= '" + str(yrs[0]) + "' and c.Year <= '" + str(yrs[1]) + "'" 
+        register = 1
     # Query data 
-    data = dk.query(query_stmn).df()
-    full_data = dk.query(query_full_stmn).df()
-    full_data['Id'] = full_data['Id'].astype(str)
-    full_data['Year'] = full_data['Year'].astype(str)
-
-
-    # Select Importer and Exporter colors
-    ex_filter = st.selectbox("Select/Type the :orange[Exporter]", pd.unique(data["exporter"].sort_values()))
-    im_filter = st.selectbox("Select/Type the :red[Importer]", pd.unique(data["importer"].sort_values()))
-
-    # Select if directed or weighted and Initiated PyViz graph
-    directed = st.checkbox('Directed')
-    weighted = st.checkbox('Weighted by trades')
-    if weighted:
-        species = nx.from_pandas_edgelist(data, 'exporter', 'importer', 'weight')
+    if register == 0:
+        data = pd.DataFrame()
     else:
-        species = nx.from_pandas_edgelist(data, 'exporter', 'importer')
-    if directed:
-        anim_net = Network(height='1000px', bgcolor='white', font_color='blue', directed=True)
+        data = dk.query(query).df()
+    if data.empty:
+        st.write('No results, please expand years.')
     else:
-        anim_net = Network(height='1000px', bgcolor='white', font_color='blue')
+        full_data = dk.query(query_full).df()
+        full_data['Id'] = full_data['Id'].astype(str)
+        full_data['Year'] = full_data['Year'].astype(str)
 
-    # Take Networkx graph and translate it to a PyVis graph format
-    anim_net.from_nx(species)
 
-    # Color based on import/export
-    for node in anim_net.nodes:
-        if node['id'] == ex_filter:
-            node['color'] = 'orange'
-        elif node['id'] == im_filter:
-            node['color'] = 'red'
+        # Select Importer and Exporter colors
+        ex_filter = st.selectbox("Select/Type the :orange[Exporter]", pd.unique(data["exporter"].sort_values()))
+        im_filter = st.selectbox("Select/Type the :red[Importer]", pd.unique(data["importer"].sort_values()))
+
+        # Select if directed or weighted and Initiated PyViz graph
+        directed = st.checkbox('Directed')
+        weighted = st.checkbox('Weighted by trades')
+        if weighted:
+            species = nx.from_pandas_edgelist(data, 'exporter', 'importer', 'weight')
         else:
-            node['color'] = 'grey'
+            species = nx.from_pandas_edgelist(data, 'exporter', 'importer')
+        if directed:
+            anim_net = Network(height='900px', bgcolor='white', font_color='blue', directed=True)
+        else:
+            anim_net = Network(height='900px', bgcolor='white', font_color='blue')
 
-    # Generate network with specific layout settings
-    anim_net.repulsion(node_distance=420, central_gravity=0.33,
-                       spring_length=110, spring_strength=0.10,
-                       damping=0.95)
+        # Take Networkx graph and translate it to a PyVis graph format
+        anim_net.from_nx(species)
 
-    # Save and read graph as HTML file (on Streamlit Sharing)
-    try:
-        path = '/tmp'
-        anim_net.save_graph(f'{path}/pyvis_graph.html')
-        HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
+        # Color based on import/export
+        for node in anim_net.nodes:
+            if node['id'] == ex_filter:
+                node['color'] = 'orange'
+            elif node['id'] == im_filter:
+                node['color'] = 'red'
+            else:
+                node['color'] = 'grey'
 
-    # Save and read graph as HTML file (locally)
-    except:
-        path = 'html_files'
-        anim_net.save_graph(f'{path}/pyvis_graph.html')
-        HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
+        # Generate network with specific layout settings
+        anim_net.repulsion(node_distance=420, central_gravity=0.33,
+                           spring_length=110, spring_strength=0.10,
+                           damping=0.95)
 
-    # Load HTML file in HTML component for display on Streamlit page
-    components.html(HtmlFile.read(), height=1100)
-    HtmlFile.close()
+        # Save and read graph as HTML file (on Streamlit Sharing)
+        try:
+            path = '/tmp'
+            anim_net.save_graph(f'{path}/pyvis_graph.html')
+            HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
 
-    st.dataframe(data)
-    st.dataframe(full_data.set_index(full_data.columns[0]))
+        # Save and read graph as HTML file (locally)
+        except:
+            path = 'html_files'
+            anim_net.save_graph(f'{path}/pyvis_graph.html')
+            HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
+
+        # Load HTML file in HTML component for display on Streamlit page
+        components.html(HtmlFile.read(), height=1000, width=1000)
+        HtmlFile.close()
+
+        st.dataframe(data)
+        st.dataframe(full_data.set_index(full_data.columns[0]))
 
 st.markdown('[https://github.com/ydnadev/cites-network]')
