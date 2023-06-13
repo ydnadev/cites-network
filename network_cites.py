@@ -24,7 +24,7 @@ import_num = sm_import['importer'].values[0].astype(str)
 export_num = sm_export['exporter'].values[0].astype(str)
 colA, colB, colC = st.columns(3)
 colA.metric(
-    label='Taxon ♞',
+    label='Taxa ♞',
     value=taxon_num
 )
 colB.metric(
