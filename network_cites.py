@@ -53,11 +53,11 @@ if sp_filter:
             register = 0
         else:
             term_filter = st.selectbox("Select/Type the Term", pd.unique(term["Term"].sort_values()))
-            query = "select c.Importer as importer, c.Exporter as exporter, sum(c.Quantity) as weight from 'data/cites_data.parquet' c where c.Taxon = '" + sp_filter + "' and c.Year >= '" + str(yrs[0]) + "' and c.Year <= '" + str(yrs[1]) + "' and c.Term = '" + term_filter + "' group by c.Importer, c.Exporter"
+            query = "select c.Exporter as exporter, c.Importer as importer, sum(c.Quantity) as weight from 'data/cites_data.parquet' c where c.Taxon = '" + sp_filter + "' and c.Year >= '" + str(yrs[0]) + "' and c.Year <= '" + str(yrs[1]) + "' and c.Term = '" + term_filter + "' group by c.Exporter, c.Importer"
             query_full = "select * from 'data/cites_data.parquet' c where c.Taxon = '" + sp_filter + "' and c.Year >= '" + str(yrs[0]) + "' and c.Year <= '" + str(yrs[1]) + "' and c.Term = '" + term_filter + "'"
             register = 1
     else:
-        query = "select c.Importer as importer, c.Exporter as exporter, sum(c.Quantity) as weight from 'data/cites_data.parquet' c where c.Taxon = '" + sp_filter + "' and c.Year >= '" + str(yrs[0]) + "' and c.Year <= '" + str(yrs[1]) + "' group by c.Importer, c.Exporter"
+        query = "select c.Exporter as exporter, c.Importer as importer, sum(c.Quantity) as weight from 'data/cites_data.parquet' c where c.Taxon = '" + sp_filter + "' and c.Year >= '" + str(yrs[0]) + "' and c.Year <= '" + str(yrs[1]) + "' group by c.Exporter, c.Importer"
         query_full = "select * from 'data/cites_data.parquet' c where c.Taxon = '" + sp_filter + "' and c.Year >= '" + str(yrs[0]) + "' and c.Year <= '" + str(yrs[1]) + "'" 
         register = 1
     # Query data 
@@ -78,14 +78,16 @@ if sp_filter:
         im_filter = st.selectbox("Select/Type the :red[Importer]", pd.unique(data["importer"].sort_values()))
 
         # Select if directed or weighted and Initiated PyViz graph
-        directed = st.checkbox('Directed')
+        #directed = st.checkbox('Directed')
         weighted = st.checkbox('Weighted by trades')
         if weighted:
             species = nx.from_pandas_edgelist(data, 'exporter', 'importer', 'weight')
         else:
             species = nx.from_pandas_edgelist(data, 'exporter', 'importer')
         if directed:
-            anim_net = Network(height='900px', bgcolor='white', font_color='blue', directed=True)
+            # directed is not working properly, need to calculate a net flow for this to work, hiding for now
+            #anim_net = Network(height='900px', bgcolor='white', font_color='blue', directed=True)
+            anim_net = Network(height='900px', bgcolor='white', font_color='blue')
         else:
             anim_net = Network(height='900px', bgcolor='white', font_color='blue')
 
