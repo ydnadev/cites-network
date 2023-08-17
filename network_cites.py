@@ -132,21 +132,14 @@ if sp_filter:
                 pd.unique(data["import_ctry"].sort_values()),
             )
 
-            # Select if directed or weighted and Initiated PyViz graph
-            # directed = st.checkbox('Directed')
             weighted = st.checkbox("Weighted by Quantity")
             if weighted:
                 species = nx.from_pandas_edgelist(
-                    data, "export_ctry", "import_ctry", "weight"
+                    data, source="export_ctry", target="import_ctry", edge_attr="weight", create_using=nx.DiGraph()
                 )
             else:
-                species = nx.from_pandas_edgelist(data, "export_ctry", "import_ctry")
-            # if directed:
-            #    # directed is not working properly, need to calculate a net flow for this to work, hiding for now
-            #    #anim_net = Network(height='900px', bgcolor='white', font_color='blue', directed=True)
-            # else:
-            #    anim_net = Network(height='900px', bgcolor='white', font_color='blue')
-            anim_net = Network(height="900px", bgcolor="white", font_color="blue")
+                species = nx.from_pandas_edgelist(data, source="export_ctry", target="import_ctry", create_using=nx.DiGraph())
+            anim_net = Network(height="900px", bgcolor="white", font_color="blue", directed=True)
 
             # Take Networkx graph and translate it to a PyVis graph format
             anim_net.from_nx(species)
@@ -182,7 +175,7 @@ if sp_filter:
                 HtmlFile = open(f"{path}/pyvis_graph.html", "r", encoding="utf-8")
 
             # Load HTML file in HTML component for display on Streamlit page
-            components.html(HtmlFile.read(), height=1000, width=1000)
+            components.html(HtmlFile.read(), height=1000, width=1200)
             HtmlFile.close()
 
             st.dataframe(data)
