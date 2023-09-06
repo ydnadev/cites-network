@@ -131,8 +131,12 @@ if sp_filter:
                 "Select/Type the :red[Importer]",
                 pd.unique(data["import_ctry"].sort_values()),
             )
-
-            weighted = st.checkbox("Weighted by Quantity")
+            
+            # Weighting Edges / Scaling Nodes
+            weighted = st.checkbox("Weighted Edges by Quantity of Trades")
+            noted = st.checkbox("Scale Nodes by Degree", value = True)
+            
+            # Weighted edges
             if weighted:
                 species = nx.from_pandas_edgelist(
                     data, source="export_ctry", target="import_ctry", edge_attr="weight", create_using=nx.DiGraph()
@@ -141,14 +145,14 @@ if sp_filter:
                 species = nx.from_pandas_edgelist(data, source="export_ctry", target="import_ctry", create_using=nx.DiGraph())
 
             # Adding scaling for node size
-            scale=10 # Scaling 10*degree
-            d = dict(species.degree)
-            d.update((x, scale*y) for x, y in d.items())
-            nx.set_node_attributes(species,d,'size')
-
-            anim_net = Network(height="900px", bgcolor="white", font_color="blue", directed=True)
+            if noted:
+                scale=10 # Scaling 10*degree
+                d = dict(species.degree)
+                d.update((x, scale*y) for x, y in d.items())
+                nx.set_node_attributes(species,d,'size')
 
             # Take Networkx graph and translate it to a PyVis graph format
+            anim_net = Network(height="900px", bgcolor="white", font_color="blue", directed=True)
             anim_net.from_nx(species)
 
             # Color based on import/export
