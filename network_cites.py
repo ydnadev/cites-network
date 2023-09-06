@@ -139,6 +139,13 @@ if sp_filter:
                 )
             else:
                 species = nx.from_pandas_edgelist(data, source="export_ctry", target="import_ctry", create_using=nx.DiGraph())
+
+            # Adding scaling for node size
+            scale=10 # Scaling 10*degree
+            d = dict(species.degree)
+            d.update((x, scale*y) for x, y in d.items())
+            nx.set_node_attributes(species,d,'size')
+
             anim_net = Network(height="900px", bgcolor="white", font_color="blue", directed=True)
 
             # Take Networkx graph and translate it to a PyVis graph format
