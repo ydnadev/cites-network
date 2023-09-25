@@ -1,3 +1,5 @@
+""" CITES trade network interactive Streamlit powered dashboard. """
+
 import duckdb as dk
 import networkx as nx
 import pandas as pd
@@ -9,10 +11,12 @@ st.set_page_config(layout="wide")
 # Set header title
 st.title("CITES Trade network")
 st.markdown(
-    "Full CITES Trade Database Download. Version [2022.1]. Compiled by UNEP-WCMC, Cambridge, UK for the CITES Secretariat, Geneva, Switzerland. Available at: [https://trade.cites.org]"
+    """Full CITES Trade Database Download. Version [2022.1]. Compiled by UNEP-WCMC, Cambridge, UK
+    for the CITES Secretariat, Geneva, Switzerland. Available at: [https://trade.cites.org]"""
 )
 st.markdown(
-    "List of Contracting Parties with ISO codes - [https://cites.org/eng/disc/parties/chronolo.php]"
+    """List of Contracting Parties with ISO codes -
+    [https://cites.org/eng/disc/parties/chronolo.php]"""
 )
 
 # Read dataset (CSV)
@@ -57,14 +61,20 @@ if sp_filter:
         )
         term = dk.query(term_query).df()
         if term.empty:
-            # register to track whether term query is empty
-            register = 0
+            # REGISTER to track whether term query is empty
+            REGISTER = 0
         else:
             term_filter = st.selectbox(
                 "Select/Type the Term", pd.unique(term["Term"].sort_values())
             )
             query = (
-                "select c.Exporter as exporter, c.export_ctry, c.Importer as importer, c.import_ctry, sum(c.Quantity) as weight from 'data/cites_data.parquet' c where c.Taxon = '"
+                """select c.Exporter as exporter
+                ,c.export_ctry
+                ,c.Importer as importer
+                ,c.import_ctry
+                ,sum(c.Quantity) as weight
+                from 'data/cites_data.parquet' c
+                where c.Taxon = '"""
                 + sp_filter
                 + "' and c.Year >= '"
                 + str(yrs[0])
@@ -85,10 +95,16 @@ if sp_filter:
                 + term_filter
                 + "'"
             )
-            register = 1
+            REGISTER = 1
     else:
         query = (
-            "select c.Exporter as exporter, c.export_ctry, c.Importer as importer, c.import_ctry, sum(c.Quantity) as weight from 'data/cites_data.parquet' c where c.Taxon = '"
+            """select c.Exporter as exporter
+            ,c.export_ctry
+            ,c.Importer as importer
+            ,c.import_ctry
+            ,sum(c.Quantity) as weight
+            from 'data/cites_data.parquet' c
+            where c.Taxon = '"""
             + sp_filter
             + "' and c.Year >= '"
             + str(yrs[0])
@@ -105,9 +121,9 @@ if sp_filter:
             + str(yrs[1])
             + "'"
         )
-        register = 1
+        REGISTER = 1
     # Query data
-    if register == 0:
+    if REGISTER == 0:
         data = pd.DataFrame()
     else:
         data = dk.query(query).df()
@@ -115,8 +131,8 @@ if sp_filter:
         st.write("No results, please expand years.")
     else:
         num_results = len(data.index)
-        res_stmnt = "Results returned: " + str(num_results)
-        st.write(res_stmnt)
+        RES_STMNT = "Results returned: " + str(num_results)
+        st.write(RES_STMNT)
         if num_results < 1000:
             full_data = dk.query(query_full).df()
             full_data["Id"] = full_data["Id"].astype(str)
@@ -131,28 +147,39 @@ if sp_filter:
                 "Select/Type the :red[Importer]",
                 pd.unique(data["import_ctry"].sort_values()),
             )
-            
+
             # Weighting Edges / Scaling Nodes
             weighted = st.checkbox("Weighted Edges by Quantity of Trades")
-            noted = st.checkbox("Scale Nodes by Degree", value = True)
-            
+            noted = st.checkbox("Scale Nodes by Number of Trading Partners", value=True)
+
             # Weighted edges
             if weighted:
                 species = nx.from_pandas_edgelist(
-                    data, source="export_ctry", target="import_ctry", edge_attr="weight", create_using=nx.DiGraph()
+                    data,
+                    source="export_ctry",
+                    target="import_ctry",
+                    edge_attr="weight",
+                    create_using=nx.DiGraph(),
                 )
             else:
-                species = nx.from_pandas_edgelist(data, source="export_ctry", target="import_ctry", create_using=nx.DiGraph())
+                species = nx.from_pandas_edgelist(
+                    data,
+                    source="export_ctry",
+                    target="import_ctry",
+                    create_using=nx.DiGraph(),
+                )
 
             # Adding scaling for node size
             if noted:
-                scale=10 # Scaling 10*degree
+                SCALE = 10  # Scaling 10*degree
                 d = dict(species.degree)
-                d.update((x, scale*y) for x, y in d.items())
-                nx.set_node_attributes(species,d,'size')
+                d.update((x, SCALE * y) for x, y in d.items())
+                nx.set_node_attributes(species, d, "size")
 
             # Take Networkx graph and translate it to a PyVis graph format
-            anim_net = Network(height="900px", bgcolor="white", font_color="blue", directed=True)
+            anim_net = Network(
+                height="900px", bgcolor="white", font_color="blue", directed=True
+            )
             anim_net.from_nx(species)
 
             # Color based on import/export
@@ -175,15 +202,15 @@ if sp_filter:
 
             # Save and read graph as HTML file (on Streamlit Sharing)
             try:
-                path = "/tmp"
-                anim_net.save_graph(f"{path}/pyvis_graph.html")
-                HtmlFile = open(f"{path}/pyvis_graph.html", "r", encoding="utf-8")
+                PATH = "/tmp"
+                anim_net.save_graph(f"{PATH}/pyvis_graph.html")
+                HtmlFile = open(f"{PATH}/pyvis_graph.html", "r", encoding="utf-8")
 
             # Save and read graph as HTML file (locally)
-            except:
-                path = "html_files"
-                anim_net.save_graph(f"{path}/pyvis_graph.html")
-                HtmlFile = open(f"{path}/pyvis_graph.html", "r", encoding="utf-8")
+            except OSError:
+                PATH = "html_files"
+                anim_net.save_graph(f"{PATH}/pyvis_graph.html")
+                HtmlFile = open(f"{PATH}/pyvis_graph.html", "r", encoding="utf-8")
 
             # Load HTML file in HTML component for display on Streamlit page
             components.html(HtmlFile.read(), height=1000, width=1200)
