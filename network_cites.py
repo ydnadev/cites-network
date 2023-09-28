@@ -176,7 +176,7 @@ if sp_filter:
                             "Out-Degree (outgoing connections)",
                             "Eigenvector (centrality of neighbors)",
                             "Closeness (distance to other nodes)",
-                            "Betweeness (frequency as shortest path)"])
+                            "Betweenness (frequency as shortest path)"])
                        # captions = ["number of edges",
                        #     "centrality of neighbors",
                        #     "shortest path to other nodes"])
@@ -202,7 +202,7 @@ if sp_filter:
                     cent = nx.closeness_centrality(species)
                     cent.update((x, 100 * y) for x, y in cent.items())
                     nx.set_node_attributes(species, cent, "size")
-                elif centrality == "Betweeness (frequency as shortest path)":
+                elif centrality == "Betweenness (frequency as shortest path)":
                     cent = nx.betweenness_centrality(species)
                     cent.update((x, 100 * y) for x, y in cent.items())
                     nx.set_node_attributes(species, cent, "size")
