@@ -148,11 +148,8 @@ if sp_filter:
                 pd.unique(data["import_ctry"].sort_values()),
             )
 
-            # Weighting Edges / Scaling Nodes
-            weighted = st.checkbox("Weighted Edges by Quantity of Trades")
-            noted = st.checkbox("Scale Nodes by Number of Trading Partners", value=True)
-
             # Weighted edges
+            weighted = st.checkbox("Weighted Edges by Quantity of Trades")
             if weighted:
                 species = nx.from_pandas_edgelist(
                     data,
@@ -168,13 +165,48 @@ if sp_filter:
                     target="import_ctry",
                     create_using=nx.DiGraph(),
                 )
+            
+            # Node Centrality
+            dgree = st.checkbox("Scale Nodes by Number of Trading Partners", value=True)
+            if dgree:
+                centrality = st.radio(
+                        "Scale Nodes by Centrality Measures",
+                        ["Degree (connections)",
+                            "In-Degree (incoming connections)",
+                            "Out-Degree (outgoing connections)",
+                            "Eigenvector (centrality of neighbors)",
+                            "Closeness (distance to other nodes)",
+                            "Betweeness (frequency as shortest path)"])
+                       # captions = ["number of edges",
+                       #     "centrality of neighbors",
+                       #     "shortest path to other nodes"])
+            
+                # Adding scaling for node size
+                if centrality == "Degree (connections)":
+                    cent = nx.degree_centrality(species)
+                    cent.update((x, 100 * y) for x, y in cent.items())
+                    nx.set_node_attributes(species, cent, "size")
+                elif centrality == "In-Degree (incoming connections)":
+                    cent = nx.in_degree_centrality(species)
+                    cent.update((x, 100 * y) for x, y in cent.items())
+                    nx.set_node_attributes(species, cent, "size")
+                elif centrality == "Out-Degree (outgoing connections)":
+                    cent = nx.out_degree_centrality(species)
+                    cent.update((x, 100 * y) for x, y in cent.items())
+                    nx.set_node_attributes(species, cent, "size")
+                elif centrality == "Eigenvector (centrality of neighbors)":
+                    cent = nx.eigenvector_centrality(species)
+                    cent.update((x, 100 * y) for x, y in cent.items())
+                    nx.set_node_attributes(species, cent, "size")
+                elif centrality == "Closeness (shortest path to other nodes)":
+                    cent = nx.closeness_centrality(species)
+                    cent.update((x, 100 * y) for x, y in cent.items())
+                    nx.set_node_attributes(species, cent, "size")
+                elif centrality == "Betweeness (frequency as shortest path)":
+                    cent = nx.betweenness_centrality(species)
+                    cent.update((x, 100 * y) for x, y in cent.items())
+                    nx.set_node_attributes(species, cent, "size")
 
-            # Adding scaling for node size
-            if noted:
-                SCALE = 10  # Scaling 10*degree
-                d = dict(species.degree)
-                d.update((x, SCALE * y) for x, y in d.items())
-                nx.set_node_attributes(species, d, "size")
 
             # Take Networkx graph and translate it to a PyVis graph format
             anim_net = Network(
