@@ -158,6 +158,7 @@ if sp_filter:
                     edge_attr="weight",
                     create_using=nx.DiGraph(),
                 )
+                print(species.edge_attr)
             else:
                 species = nx.from_pandas_edgelist(
                     data,
@@ -174,7 +175,7 @@ if sp_filter:
                         ["Degree (connections)",
                             "In-Degree (incoming connections)",
                             "Out-Degree (outgoing connections)",
-                            "Eigenvector (centrality of neighbors)",
+                            #"Eigenvector (centrality of neighbors)",
                             "Closeness (distance to other nodes)",
                             "Betweenness (frequency as shortest path)"])
                        # captions = ["number of edges",
