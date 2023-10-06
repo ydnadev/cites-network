@@ -158,7 +158,7 @@ if sp_filter:
                     edge_attr="weight",
                     create_using=nx.DiGraph(),
                 )
-                print(species.edge_attr)
+                #print(species.edge_attr)
             else:
                 species = nx.from_pandas_edgelist(
                     data,
