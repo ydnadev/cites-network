@@ -248,8 +248,11 @@ if sp_filter:
             # Load HTML file in HTML component for display on Streamlit page
             components.html(HtmlFile.read(), height=1500, width=1500)
             HtmlFile.close()
-
+            
+            st.write("Trade Weights by Countries")
             st.dataframe(data)
+
+            st.write("Raw data")
             st.dataframe(full_data.set_index(full_data.columns[0]))
 
         else:

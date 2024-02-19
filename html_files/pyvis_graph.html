@@ -33,7 +33,7 @@
 
              #mynetwork {
                  width: 100%;
-                 height: 465px;
+                 height: 900px;
                  background-color: white;
                  border: 1px solid lightgray;
                  position: relative;
@@ -88,8 +88,8 @@
                   
 
                   // parsing and collecting nodes and edges from the python
-                  nodes = new vis.DataSet([{"color": "red", "font": {"color": "blue"}, "id": "PE", "label": "PE", "shape": "dot", "size": 10}, {"color": "orange", "font": {"color": "blue"}, "id": "DE", "label": "DE", "shape": "dot", "size": 10}]);
-                  edges = new vis.DataSet([{"from": "PE", "to": "DE", "width": 1}]);
+                  nodes = new vis.DataSet([{"color": "grey", "font": {"color": "blue"}, "id": "Belize", "label": "Belize", "shape": "dot", "size": 10}, {"color": "red", "font": {"color": "blue"}, "id": "Thailand", "label": "Thailand", "shape": "dot", "size": 50}, {"color": "grey", "font": {"color": "blue"}, "id": "Japan", "label": "Japan", "shape": "dot", "size": 0}, {"color": "grey", "font": {"color": "blue"}, "id": "United States of America", "label": "United States of America", "shape": "dot", "size": 0}, {"color": "grey", "font": {"color": "blue"}, "id": "Philippines", "label": "Philippines", "shape": "dot", "size": 0}, {"color": "grey", "font": {"color": "blue"}, "id": "Switzerland", "label": "Switzerland", "shape": "dot", "size": 0}, {"color": "grey", "font": {"color": "blue"}, "id": "Germany", "label": "Germany", "shape": "dot", "size": 0}, {"color": "orange", "font": {"color": "blue"}, "id": "China", "label": "China", "shape": "dot", "size": 10}, {"color": "grey", "font": {"color": "blue"}, "id": "Singapore", "label": "Singapore", "shape": "dot", "size": 10}, {"color": "grey", "font": {"color": "blue"}, "id": "Peru", "label": "Peru", "shape": "dot", "size": 10}, {"color": "grey", "font": {"color": "blue"}, "id": "Belgium", "label": "Belgium", "shape": "dot", "size": 0}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "Belize", "to": "Thailand", "width": 3.0}, {"arrows": "to", "from": "Thailand", "to": "Japan", "width": 50.0}, {"arrows": "to", "from": "Thailand", "to": "United States of America", "width": 5.0}, {"arrows": "to", "from": "Thailand", "to": "Philippines", "width": 2.0}, {"arrows": "to", "from": "Thailand", "to": "Switzerland", "width": 25.0}, {"arrows": "to", "from": "Thailand", "to": "Germany", "width": 2.0}, {"arrows": "to", "from": "China", "to": "Thailand", "width": 200.0}, {"arrows": "to", "from": "Singapore", "to": "China", "width": 5.0}, {"arrows": "to", "from": "Peru", "to": "Belgium", "width": 13.0}]);
 
                   nodeColors = {};
                   allNodes = nodes.get({ returnType: "Object" });
