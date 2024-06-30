@@ -1,6 +1,6 @@
 = CITES Trade Network Graph
 
-Network map of CITES trade data [<<cites,1>>], by species and year. Dashboard [<<str,2>>]]: https://cites-network-graph.streamlit.app/
+Network map of CITES trade data [<<cites,1>>], by species and year. Dashboard [<<str,2>>]]: https://regressi.online/cites-network/
 
 image::/data/Psychopsis_papilio.png[Butterfly orchid]
 *Psychopsis papilio - Butterfly orchid*
