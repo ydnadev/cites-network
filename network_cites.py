@@ -19,7 +19,9 @@ st.markdown(
     [https://cites.org/eng/disc/parties/chronolo.php]"""
 )
 
-# Read dataset (CSV)
+# Read dataset
+countries = pd.read_csv('data/countries.csv')
+st.dataframe(countries)
 tax = dk.query(" select distinct c.Taxon from 'data/cites_data.parquet' c ").df()
 
 # Summary data

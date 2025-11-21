@@ -1,3 +1,4 @@
+import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -20,14 +21,33 @@ class DashboardUI:
 
     def show_metrics(self):
         metrics = self.data_manager.summary_stats()
-        colA, colB, colC = st.columns(3)
-        colA.metric(label="Taxa", value=metrics["taxa"])
-        colB.metric(label="Exporters", value=metrics["exporters"])
-        colC.metric(label="Importers", value=metrics["importers"])
+        #colA, colB, colC, colD = st.columns(4)
+        #colA.metric(label="Records", value=metrics["rows"])
+        #colA.metric(label="Records", value=f"{metrics['rows']:,}")
+        #colB.metric(label="Taxa", value=metrics["taxa"])
+        #colC.metric(label="Exporters", value=metrics["exporters"])
+        #colD.metric(label="Importers", value=metrics["importers"])
 
-    def controls(self):
+        rows = f"{metrics['rows']:,}"
+        taxa = f"{metrics['taxa']:,}"
+        exprts = f"{metrics['exporters']:,}"
+        imprts = f"{metrics['importers']:,}"
+        summary_table = pd.DataFrame(
+            {
+                "Records": rows,
+                "Taxa": taxa,
+                "Exporters": exprts,
+                "Importers": imprts,
+            } ,   index=[""],
+        )
+        st.table(summary_table, border="horizontal")
+
+    def controls(self, itis):
         taxa_df = self.data_manager.unique_taxa()
-        taxon = st.selectbox("Select Taxon", sorted(taxa_df["Taxon"].unique()))
+        taxa_full = taxa_df.merge(itis, left_on='Taxon', right_on='complete_name')
+        taxon_common = st.selectbox("Select Taxon", sorted(taxa_full["vernacular_name"].unique()))
+        taxon_list = taxa_full[taxa_full['vernacular_name'] == taxon_common]
+        taxon = taxon_list["complete_name"].values[0]
         term_check = st.checkbox("Select Term")
         year_range = st.slider("Select Trade Years", 1974, 2023, (1975, 2022))
         if term_check:

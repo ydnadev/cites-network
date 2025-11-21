@@ -7,21 +7,24 @@ def main():
     # Paths to your data files
     parquet_path = "data/cites_data.parquet"
     countries_csv = "data/countries.csv"
-    
+    itis_csv = "data/itis_vernacular.csv"
+
 
     # Initialize class instances
-    data_manager = CITESDataManager(parquet_path, countries_csv)
+    data_manager = CITESDataManager(parquet_path, countries_csv, itis_csv)
     countries = data_manager.countries
+    itis = data_manager.itis
     graph_builder = NetworkGraphBuilder(data=None, countries=countries) # data will be set after filtering
     dashboard = DashboardUI(data_manager, graph_builder)
 
     # Render dashboard sections
     dashboard.display_header()
+    dashboard.show_metrics()
 
     # Main UI controls and results loop
     col1, col2 = st.columns(2)
     with col1:
-        taxon, year_range, term = dashboard.controls()
+        taxon, year_range, term = dashboard.controls(itis)
         filtered_data = data_manager.filter_by_taxon(taxon, year_range, term)
         #dashboard.show_results(taxon, year_range, term)
         if not filtered_data.empty:
@@ -30,7 +33,6 @@ def main():
 
     # Graph visualization
         with col2:
-            dashboard.show_metrics()
             dashboard.render_graph(filtered_data, exporter_sel, importer_sel, weighted, centrality_method)
             dashboard.render_map(countries, exporter_sel, importer_sel)
             #dashboard.display_columns(filtered_data, countries, exporter_sel, importer_sel, weighted, centrality_method)
