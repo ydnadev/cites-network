@@ -1,6 +1,7 @@
 pandas==1.5.3
-streamlit
+streamlit==1.36.0
 networkx==3.1
 duckdb==0.7.1
 networkx==3.1
 pyvis==0.3.1
+plotly==6.4.0
