@@ -72,7 +72,7 @@ class NetworkGraphBuilder:
         ex_code = exporter_sel
         im_code = importer_sel
         node_pos = {row['country']: (row['longitude'], row['latitude']) for _, row in countries.iterrows()}
-        node_names = [countries.loc[countries['country'] == node, 'country'].values[0] for node in self.graph.nodes()]
+        node_names = [countries.loc[countries['country'] == node, 'name'].values[0] for node in self.graph.nodes()]
 
         # Adjust node sizes 
         node_sizes = [self.graph.nodes[node].get('size', 8) for node in self.graph.nodes()]
