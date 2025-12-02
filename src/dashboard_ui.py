@@ -135,7 +135,7 @@ class DashboardUI:
 
     def render_map(self, countries, exporter, importer):
         map_graph = self.graph_builder.build_map(countries, exporter, importer)
-        st.plotly_chart(map_graph, use_container_width=True)
+        st.plotly_chart(map_graph, width='stretch')
         # self.graph_builder.scale_nodes(centrality_method.lower().replace("-", "").replace(" ", ""))
         # self.graph_builder.color_nodes([exporter], [importer])
 

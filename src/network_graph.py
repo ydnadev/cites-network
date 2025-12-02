@@ -181,7 +181,6 @@ class NetworkGraphBuilder:
                 node_pos[node] = (row["longitude"], row["latitude"])
             else:
                 node_pos[node] = (0, 0)
-        print(node_pos)
         node_names = []
         for node in self.graph.nodes():
             match = countries.loc[countries["country"] == node, "name"]
