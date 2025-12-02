@@ -7,7 +7,7 @@ image::/data/Psychopsis_papilio_2.png[Butterfly orchid]
 
 == References
 [bibliography]
-- [[[cites,1]]] Full CITES Trade Database Download. Version [2022.1]. Compiled by UNEP-WCMC, Cambridge, UK for the CITES Secretariat, Geneva, Switzerland. Available at: trade.cites.org https://trade.cites.org  
+- [[[cites,1]]] Full CITES Trade Database Download. Version [2025.1]. Compiled by UNEP-WCMC, Cambridge, UK for the CITES Secretariat, Geneva, Switzerland. Available at: trade.cites.org https://trade.cites.org  
 - [[[str,2]]] Built on Streamlit - https://streamlit.io/
 
 == Maintainers
