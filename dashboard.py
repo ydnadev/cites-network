@@ -28,7 +28,7 @@ def main():
     with col1:
         taxon, year_range, term = dashboard.controls(itis)
         filtered_data = data_manager.filter_by_taxon(taxon, year_range, term)
-        # dashboard.show_results(taxon, year_range, term)
+        filtered_results = data_manager.filter_by_taxon_results(taxon, year_range, term)
         if not filtered_data.empty:
             graph_builder.data = filtered_data
             exporter_sel, importer_sel, weighted, centrality_method = (
@@ -38,10 +38,10 @@ def main():
             # Graph visualization
             with col2:
                 dashboard.render_graph(
-                    filtered_data, exporter_sel, importer_sel, weighted, centrality_method
+                    exporter_sel, importer_sel, weighted, centrality_method
                 )
                 dashboard.render_map(countries, exporter_sel, importer_sel)
-                # dashboard.display_columns(filtered_data, countries, exporter_sel, importer_sel, weighted, centrality_method)
+                st.dataframe(filtered_results)
 
         else:
             st.markdown(":red[*Please expand years.*]")
