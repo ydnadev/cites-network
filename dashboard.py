@@ -35,14 +35,16 @@ def main():
                 dashboard.graph_options(filtered_data, countries)
             )
 
-        # Graph visualization
-        with col2:
-            dashboard.render_graph(
-                filtered_data, exporter_sel, importer_sel, weighted, centrality_method
-            )
-            dashboard.render_map(countries, exporter_sel, importer_sel)
-            # dashboard.display_columns(filtered_data, countries, exporter_sel, importer_sel, weighted, centrality_method)
+            # Graph visualization
+            with col2:
+                dashboard.render_graph(
+                    filtered_data, exporter_sel, importer_sel, weighted, centrality_method
+                )
+                dashboard.render_map(countries, exporter_sel, importer_sel)
+                # dashboard.display_columns(filtered_data, countries, exporter_sel, importer_sel, weighted, centrality_method)
 
+        else:
+            st.markdown(":red[*Please expand years.*]")
 
 if __name__ == "__main__":
     main()
