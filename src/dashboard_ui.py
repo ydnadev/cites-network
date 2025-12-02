@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
 
+
 class DashboardUI:
     def __init__(self, data_manager, graph_builder):
         self.data_manager = data_manager
@@ -10,23 +11,27 @@ class DashboardUI:
     def display_header(self):
         st.set_page_config(layout="wide")
         st.title("CITES Trade Network")
-        st.markdown("""
+        st.markdown(
+            """
         Full CITES Trade Database Download. Version [2022.1].
         Compiled by UNEP-WCMC, Cambridge, UK for the CITES Secretariat, Geneva, Switzerland.
         Available at: [https://trade.cites.org](https://trade.cites.org)
-        """)
-        st.markdown("""
+        """
+        )
+        st.markdown(
+            """
         List of Contracting Parties with ISO codes - [https://cites.org/eng/disc/parties/chronolo.php](https://cites.org/eng/disc/parties/chronolo.php)
-        """)
+        """
+        )
 
     def show_metrics(self):
         metrics = self.data_manager.summary_stats()
-        #colA, colB, colC, colD = st.columns(4)
-        #colA.metric(label="Records", value=metrics["rows"])
-        #colA.metric(label="Records", value=f"{metrics['rows']:,}")
-        #colB.metric(label="Taxa", value=metrics["taxa"])
-        #colC.metric(label="Exporters", value=metrics["exporters"])
-        #colD.metric(label="Importers", value=metrics["importers"])
+        # colA, colB, colC, colD = st.columns(4)
+        # colA.metric(label="Records", value=metrics["rows"])
+        # colA.metric(label="Records", value=f"{metrics['rows']:,}")
+        # colB.metric(label="Taxa", value=metrics["taxa"])
+        # colC.metric(label="Exporters", value=metrics["exporters"])
+        # colD.metric(label="Importers", value=metrics["importers"])
 
         rows = f"{metrics['rows']:,}"
         taxa = f"{metrics['taxa']:,}"
@@ -38,23 +43,30 @@ class DashboardUI:
                 "Taxa": taxa,
                 "Exporters": exprts,
                 "Importers": imprts,
-            } ,   index=[""],
+            },
+            index=[""],
         )
         st.table(summary_table, border="horizontal")
 
     def controls(self, itis):
         taxa_df = self.data_manager.unique_taxa()
-        taxa_full = taxa_df.merge(itis, left_on='Taxon', right_on='complete_name')
+        taxa_full = taxa_df.merge(itis, left_on="Taxon", right_on="complete_name")
         sci_check = st.checkbox("Scientific Name Search")
         if sci_check:
-            taxon_select = st.selectbox("Select Taxon - Scientific Name", sorted(taxa_full["complete_name"].unique()))
-            taxon_list = taxa_full[taxa_full['Taxon'] == taxon_select]
+            taxon_select = st.selectbox(
+                "Select Taxon - Scientific Name",
+                sorted(taxa_full["complete_name"].unique()),
+            )
+            taxon_list = taxa_full[taxa_full["Taxon"] == taxon_select]
         else:
-            taxon_select = st.selectbox("Select Taxon - Common Name", sorted(taxa_full["vernacular_name"].unique()))
-            taxon_list = taxa_full[taxa_full['vernacular_name'] == taxon_select]
+            taxon_select = st.selectbox(
+                "Select Taxon - Common Name",
+                sorted(taxa_full["vernacular_name"].unique()),
+            )
+            taxon_list = taxa_full[taxa_full["vernacular_name"] == taxon_select]
         taxon = taxon_list["complete_name"].values[0]
         term_check = st.checkbox("Select Term")
-        year_range = st.slider("Select Trade Years", 1974, 2023, (1975, 2022))
+        year_range = st.slider("Select Trade Years", 1974, 2025, (1975, 2024))
         if term_check:
             terms_df = self.data_manager.get_terms_for_taxon(taxon, year_range)
             term = st.selectbox("Select Term", sorted(terms_df["Term"].unique()))
@@ -71,49 +83,62 @@ class DashboardUI:
             st.write("No results, please expand years.")
 
     def graph_options(self, filtered_data, countries):
-        merged_exp = filtered_data.merge(countries, left_on='Exporter', right_on='country')
-        merged_imp = filtered_data.merge(countries, left_on='Importer', right_on='country')
-        #exporters = filtered_data["export_ctry"].unique()
-        #importers = filtered_data["import_ctry"].unique()
+        merged_exp = filtered_data.merge(
+            countries, left_on="Exporter", right_on="country"
+        )
+        merged_imp = filtered_data.merge(
+            countries, left_on="Importer", right_on="country"
+        )
+        # exporters = filtered_data["export_ctry"].unique()
+        # importers = filtered_data["import_ctry"].unique()
         exporters = merged_exp["name"].unique()
         exporter_sel = st.selectbox("Select :blue[Exporter]", sorted(exporters))
         if exporter_sel:
-            merged_imp = merged_imp.loc[merged_imp['name'] != exporter_sel]
+            merged_imp = merged_imp.loc[merged_imp["name"] != exporter_sel]
             importers = merged_imp["name"].unique()
             importer_sel = st.selectbox("Select :red[Importer]", sorted(importers))
-        exporter = merged_exp.loc[merged_exp['name'] == exporter_sel, 'country'].values[0]
-        #expt = ":blue[" + exporter_sel + "]"
-        #impt = ":red[" + exporter_sel + "]"
-        #cmb = expt + " " + impt
-        #st.markdown(cmb)
+        exporter = merged_exp.loc[merged_exp["name"] == exporter_sel, "country"].values[
+            0
+        ]
+        # expt = ":blue[" + exporter_sel + "]"
+        # impt = ":red[" + exporter_sel + "]"
+        # cmb = expt + " " + impt
+        # st.markdown(cmb)
         ###---->
-        #st.dataframe(merged_imp)
-        #st.dataframe(countries)
-        importer = merged_imp.loc[merged_imp['name'] == importer_sel, 'country'].values[0]
+        # st.dataframe(merged_imp)
+        # st.dataframe(countries)
+        importer = merged_imp.loc[merged_imp["name"] == importer_sel, "country"].values[
+            0
+        ]
 
         weighted = st.checkbox("Weighted Edges by Quantity of Trades")
         centrality_method = st.radio(
             "Scale Nodes by Centrality Measures",
-            ["Degree", "In-Degree", "Out-Degree", "Betweenness", "Closeness"]
+            ["Degree", "In-Degree", "Out-Degree", "Betweenness", "Closeness"],
         )
         return exporter, importer, weighted, centrality_method
 
-    def render_graph(self, filtered_data, exporter, importer, weighted, centrality_method):
+    def render_graph(
+        self, filtered_data, exporter, importer, weighted, centrality_method
+    ):
         graph = self.graph_builder.build_graph(weighted=weighted)
-        self.graph_builder.scale_nodes(centrality_method.lower().replace("-", "").replace(" ", ""))
+        self.graph_builder.scale_nodes(
+            centrality_method.lower().replace("-", "").replace(" ", "")
+        )
         self.graph_builder.color_nodes([exporter], [importer])
+
     #    net = self.graph_builder.to_pyvis()
-        #net.show("display_graph.html")
-        #HtmlFile = open("display_graph.html", "r", encoding="utf-8")
-        #components.html(HtmlFile.read(), height=900, width=1500)
+    # net.show("display_graph.html")
+    # HtmlFile = open("display_graph.html", "r", encoding="utf-8")
+    # components.html(HtmlFile.read(), height=900, width=1500)
 
     def render_map(self, countries, exporter, importer):
         map_graph = self.graph_builder.build_map(countries, exporter, importer)
         st.plotly_chart(map_graph, use_container_width=True)
-        #self.graph_builder.scale_nodes(centrality_method.lower().replace("-", "").replace(" ", ""))
-        #self.graph_builder.color_nodes([exporter], [importer])
+        # self.graph_builder.scale_nodes(centrality_method.lower().replace("-", "").replace(" ", ""))
+        # self.graph_builder.color_nodes([exporter], [importer])
 
-    #def display_columns(self, filtered_data, countries, exporter, importer, weighted, centrality_method):
+    # def display_columns(self, filtered_data, countries, exporter, importer, weighted, centrality_method):
     #    col1, col2 = st.columns(2)
     #    with col1:
     #        # Call your render_graph function and display the graph
