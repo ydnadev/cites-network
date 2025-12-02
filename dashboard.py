@@ -5,7 +5,7 @@ from src.dashboard_ui import DashboardUI
 
 def main():
     # Paths to your data files
-    parquet_path = "data/cites_data.parquet"
+    parquet_path = "data/trade_db.parquet"
     countries_csv = "data/countries.csv"
     itis_csv = "data/itis_vernacular.csv"
 

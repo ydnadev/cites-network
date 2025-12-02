@@ -45,8 +45,13 @@ class DashboardUI:
     def controls(self, itis):
         taxa_df = self.data_manager.unique_taxa()
         taxa_full = taxa_df.merge(itis, left_on='Taxon', right_on='complete_name')
-        taxon_common = st.selectbox("Select Taxon", sorted(taxa_full["vernacular_name"].unique()))
-        taxon_list = taxa_full[taxa_full['vernacular_name'] == taxon_common]
+        sci_check = st.checkbox("Scientific Name Search")
+        if sci_check:
+            taxon_select = st.selectbox("Select Taxon - Scientific Name", sorted(taxa_full["complete_name"].unique()))
+            taxon_list = taxa_full[taxa_full['Taxon'] == taxon_select]
+        else:
+            taxon_select = st.selectbox("Select Taxon - Common Name", sorted(taxa_full["vernacular_name"].unique()))
+            taxon_list = taxa_full[taxa_full['vernacular_name'] == taxon_select]
         taxon = taxon_list["complete_name"].values[0]
         term_check = st.checkbox("Select Term")
         year_range = st.slider("Select Trade Years", 1974, 2023, (1975, 2022))
@@ -81,13 +86,15 @@ class DashboardUI:
         #impt = ":red[" + exporter_sel + "]"
         #cmb = expt + " " + impt
         #st.markdown(cmb)
+        ###---->
         #st.dataframe(merged_imp)
+        #st.dataframe(countries)
         importer = merged_imp.loc[merged_imp['name'] == importer_sel, 'country'].values[0]
 
         weighted = st.checkbox("Weighted Edges by Quantity of Trades")
         centrality_method = st.radio(
             "Scale Nodes by Centrality Measures",
-            ["Degree", "In-Degree", "Out-Degree", "Closeness", "Betweenness"]
+            ["Degree", "In-Degree", "Out-Degree", "Betweenness", "Closeness"]
         )
         return exporter, importer, weighted, centrality_method
 

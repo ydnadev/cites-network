@@ -59,10 +59,10 @@ class CITESDataManager:
         return self.duckdb_conn.execute(query, [taxon, year_range[0], year_range[1]]).fetchdf()
 
     def filter_by_taxon(self, taxon, year_range=None, term=None):
-        query = f"SELECT Exporter, Importer, sum(Quantity) as Weight FROM '{self.parquet_path}' WHERE Taxon = ?"
+        query = f"SELECT Exporter, Importer, sum(cast(Quantity as integer)) as Weight FROM '{self.parquet_path}' WHERE Taxon = ?"
         params = [taxon]
         if year_range:
-            query += " AND Year >= ? AND Year <= ?"
+            query += " AND cast(Year as integer) >= ? AND cast(Year as integer) <= ? AND Exporter is not null and Importer is not null "
             params.extend(year_range)
         if term:
             query += " AND Term = ?"

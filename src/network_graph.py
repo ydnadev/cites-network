@@ -71,8 +71,21 @@ class NetworkGraphBuilder:
         # Map country code to coordinates and names
         ex_code = exporter_sel
         im_code = importer_sel
-        node_pos = {row['country']: (row['longitude'], row['latitude']) for _, row in countries.iterrows()}
-        node_names = [countries.loc[countries['country'] == node, 'name'].values[0] for node in self.graph.nodes()]
+        #node_pos = {row['country']: (row['longitude'], row['latitude']) for _, row in countries.iterrows()}
+        node_pos = {}
+        for node in self.graph.nodes():
+            match = countries.loc[countries['country'] == node]
+            if not match.empty:
+                row = match.iloc[0]
+                node_pos[node] = (row['longitude'], row['latitude'])
+            else:
+                node_pos[node] = (0, 0)
+        print(node_pos)
+        #node_names = [countries.loc[countries['country'] == node, 'name'].values[0] for node in self.graph.nodes()]
+        node_names = []
+        for node in self.graph.nodes():
+            match = countries.loc[countries['country'] == node, 'name']
+            node_names.append(match.values[0] if not match.empty else "XX")
 
         # Adjust node sizes 
         node_sizes = [self.graph.nodes[node].get('size', 8) for node in self.graph.nodes()]
