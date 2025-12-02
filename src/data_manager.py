@@ -1,6 +1,7 @@
 import duckdb
 import pandas as pd
 
+
 class CITESDataManager:
     def __init__(self, parquet_path, countries_csv, itis_csv):
         self.parquet_path = parquet_path
@@ -21,18 +22,34 @@ class CITESDataManager:
         return self.duckdb_conn.execute(query).fetchdf()
 
     def summary_stats(self):
-        row_count = self.duckdb_conn.execute(
-            f"SELECT COUNT(*) AS rows FROM '{self.parquet_path}'"
-        ).fetchdf().iat[0, 0]
-        taxon_count = self.duckdb_conn.execute(
-            f"SELECT COUNT(DISTINCT Taxon) AS taxon FROM '{self.parquet_path}'"
-        ).fetchdf().iat[0, 0]
-        importer_count = self.duckdb_conn.execute(
-            f"SELECT COUNT(DISTINCT Importer) AS importer FROM '{self.parquet_path}'"
-        ).fetchdf().iat[0, 0]
-        exporter_count = self.duckdb_conn.execute(
-            f"SELECT COUNT(DISTINCT Exporter) AS exporter FROM '{self.parquet_path}'"
-        ).fetchdf().iat[0, 0]
+        row_count = (
+            self.duckdb_conn.execute(
+                f"SELECT COUNT(*) AS rows FROM '{self.parquet_path}'"
+            )
+            .fetchdf()
+            .iat[0, 0]
+        )
+        taxon_count = (
+            self.duckdb_conn.execute(
+                f"SELECT COUNT(DISTINCT Taxon) AS taxon FROM '{self.parquet_path}'"
+            )
+            .fetchdf()
+            .iat[0, 0]
+        )
+        importer_count = (
+            self.duckdb_conn.execute(
+                f"SELECT COUNT(DISTINCT Importer) AS importer FROM '{self.parquet_path}'"
+            )
+            .fetchdf()
+            .iat[0, 0]
+        )
+        exporter_count = (
+            self.duckdb_conn.execute(
+                f"SELECT COUNT(DISTINCT Exporter) AS exporter FROM '{self.parquet_path}'"
+            )
+            .fetchdf()
+            .iat[0, 0]
+        )
         return {
             "taxa": taxon_count,
             "importers": importer_count,
@@ -40,23 +57,25 @@ class CITESDataManager:
             "rows": row_count,
         }
 
-   # def filter_by_taxon(self, taxon, year_range=None, term=None):
-   #     query = f"SELECT * FROM '{self.parquet_path}' WHERE Taxon = ?"
-   #     params = [taxon]
-   #     if year_range:
-   #         query += " AND Year >= ? AND Year <= ?"
-   #         params.extend(year_range)
-   #     if term:
-   #         query += " AND Term = ?"
-   #         params.append(term)
-   #     return self.duckdb_conn.execute(query, params).fetchdf()
+    # def filter_by_taxon(self, taxon, year_range=None, term=None):
+    #     query = f"SELECT * FROM '{self.parquet_path}' WHERE Taxon = ?"
+    #     params = [taxon]
+    #     if year_range:
+    #         query += " AND Year >= ? AND Year <= ?"
+    #         params.extend(year_range)
+    #     if term:
+    #         query += " AND Term = ?"
+    #         params.append(term)
+    #     return self.duckdb_conn.execute(query, params).fetchdf()
 
     def get_terms_for_taxon(self, taxon, year_range):
         query = (
             f"SELECT DISTINCT Term FROM '{self.parquet_path}' "
             "WHERE Taxon = ? AND Year >= ? AND Year <= ?"
         )
-        return self.duckdb_conn.execute(query, [taxon, year_range[0], year_range[1]]).fetchdf()
+        return self.duckdb_conn.execute(
+            query, [taxon, year_range[0], year_range[1]]
+        ).fetchdf()
 
     def filter_by_taxon(self, taxon, year_range=None, term=None):
         query = f"SELECT Exporter, Importer, sum(cast(Quantity as integer)) as Weight FROM '{self.parquet_path}' WHERE Taxon = ?"
@@ -69,4 +88,3 @@ class CITESDataManager:
             params.append(term)
         query += "group by Exporter, Importer"
         return self.duckdb_conn.execute(query, params).fetchdf()
-

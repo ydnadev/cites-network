@@ -65,13 +65,14 @@ class DashboardUI:
             )
             taxon_list = taxa_full[taxa_full["vernacular_name"] == taxon_select]
         taxon = taxon_list["complete_name"].values[0]
-        term_check = st.checkbox("Select Term")
         year_range = st.slider("Select Trade Years", 1974, 2025, (1975, 2024))
-        if term_check:
-            terms_df = self.data_manager.get_terms_for_taxon(taxon, year_range)
-            term = st.selectbox("Select Term", sorted(terms_df["Term"].unique()))
-        else:
+        terms_df = self.data_manager.get_terms_for_taxon(taxon, year_range)
+        term_options = ["ALL"] + sorted(terms_df["Term"].unique())
+        term = st.selectbox("Select Term", term_options)
+
+        if term == "ALL":
             term = None
+
         return taxon, year_range, term
 
     def show_results(self, taxon, year_range, term):
