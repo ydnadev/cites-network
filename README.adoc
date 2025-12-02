@@ -2,7 +2,7 @@
 
 Network map of CITES trade data [<<cites,1>>], by species and year. Dashboard [<<str,2>>]]: https://regressi.online/cites-network/
 
-image::/data/Psychopsis_papilio2.png[Butterfly orchid]
+image::/data/Psychopsis_papilio_2.png[Butterfly orchid]
 *Psychopsis papilio - Butterfly orchid*
 
 == References
