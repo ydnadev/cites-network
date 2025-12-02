@@ -3,18 +3,20 @@ from src.data_manager import CITESDataManager
 from src.network_graph import NetworkGraphBuilder
 from src.dashboard_ui import DashboardUI
 
+
 def main():
     # Paths to your data files
-    parquet_path = "data/trade_db.parquet"
+    parquet_path = "data/cites_data.parquet"
     countries_csv = "data/countries.csv"
     itis_csv = "data/itis_vernacular.csv"
-
 
     # Initialize class instances
     data_manager = CITESDataManager(parquet_path, countries_csv, itis_csv)
     countries = data_manager.countries
     itis = data_manager.itis
-    graph_builder = NetworkGraphBuilder(data=None, countries=countries) # data will be set after filtering
+    graph_builder = NetworkGraphBuilder(
+        data=None, countries=countries
+    )  # data will be set after filtering
     dashboard = DashboardUI(data_manager, graph_builder)
 
     # Render dashboard sections
@@ -26,19 +28,21 @@ def main():
     with col1:
         taxon, year_range, term = dashboard.controls(itis)
         filtered_data = data_manager.filter_by_taxon(taxon, year_range, term)
-        #dashboard.show_results(taxon, year_range, term)
+        # dashboard.show_results(taxon, year_range, term)
         if not filtered_data.empty:
             graph_builder.data = filtered_data
-            exporter_sel, importer_sel, weighted, centrality_method = dashboard.graph_options(filtered_data, countries)
+            exporter_sel, importer_sel, weighted, centrality_method = (
+                dashboard.graph_options(filtered_data, countries)
+            )
 
-    # Graph visualization
+        # Graph visualization
         with col2:
-            dashboard.render_graph(filtered_data, exporter_sel, importer_sel, weighted, centrality_method)
+            dashboard.render_graph(
+                filtered_data, exporter_sel, importer_sel, weighted, centrality_method
+            )
             dashboard.render_map(countries, exporter_sel, importer_sel)
-            #dashboard.display_columns(filtered_data, countries, exporter_sel, importer_sel, weighted, centrality_method)
-
+            # dashboard.display_columns(filtered_data, countries, exporter_sel, importer_sel, weighted, centrality_method)
 
 
 if __name__ == "__main__":
     main()
-
