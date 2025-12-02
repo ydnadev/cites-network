@@ -195,9 +195,6 @@ class NetworkGraphBuilder:
             self.graph.nodes[node].get("color", "grey") for node in self.graph.nodes()
         ]
 
-        # G = nx.spring_layout(species)  # substitute species with your graph variable
-        # pos = nx.spring_layout(species)
-
         # Build edge traces for the network
         edge_traces = []
         for src, dst in self.graph.edges():
@@ -216,7 +213,6 @@ class NetworkGraphBuilder:
                 lon=[lon0, lon1],
                 lat=[lat0, lat1],
                 mode="lines",
-                # line=dict(width=1, color='blue'),
                 line=dict(width=width, color=edge_color),
                 opacity=0.5,
                 showlegend=False,
@@ -231,9 +227,7 @@ class NetworkGraphBuilder:
             lon=node_lons,
             lat=node_lats,
             mode="markers",
-            # marker=dict(size=8, color='red'),
             marker=dict(size=node_sizes, color=node_colors),
-            # text=[str(node) for node in species.nodes()],
             text=node_names,
             hoverinfo="text",
             showlegend=False,
