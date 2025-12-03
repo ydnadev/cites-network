@@ -40,7 +40,12 @@ class DashboardUI:
         explaining the CITES trade database and providing reference links.
         """
 
-        st.set_page_config(layout="wide")
+        st.set_page_config(
+            page_title="CITES Trade Network",
+            page_icon="🦒",  # giraffe favicon
+            layout="wide"
+        )
+        st.set_option("client.toolbarMode", "minimal")  # or "minimal"
         st.title("CITES Trade Network")
         st.markdown(
             """
