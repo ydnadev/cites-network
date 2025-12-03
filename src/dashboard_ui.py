@@ -126,8 +126,7 @@ class DashboardUI:
         terms_df = self.data_manager.get_terms_for_taxon(taxon, year_range)
         term_options = ["ALL"] + sorted(terms_df["Term"].unique())
         term = st.selectbox("Select Term", term_options)
-
-        purpose_df = self.data_manager.get_purpose_for_taxon(taxon, year_range)
+        purpose_df = self.data_manager.get_purpose_for_taxon(taxon, year_range, term)
         purpose_df = purpose_df[purpose_df["Purpose"].notna()]
         purpose_map = {
             "B": "Breeding in captivity or artificial propagation",
@@ -172,7 +171,7 @@ class DashboardUI:
         if not filtered_data.empty:
             st.write("Trade Weights by Countries")
         else:
-            st.write("No results, please expand years.")
+            st.write("No results, please try again.")
 
     def graph_options(self, filtered_data, countries):
         """Provide controls for selecting exporter/importer and graph options.

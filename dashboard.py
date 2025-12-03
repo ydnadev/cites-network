@@ -44,7 +44,7 @@ def main():
                 st.dataframe(filtered_results)
 
         else:
-            st.markdown(":red[*Please expand years.*]")
+            st.markdown(":red[*No results, please try again.*]")
 
 if __name__ == "__main__":
     main()
