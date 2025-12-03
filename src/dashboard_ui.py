@@ -44,7 +44,7 @@ class DashboardUI:
         st.title("CITES Trade Network")
         st.markdown(
             """
-        Full CITES Trade Database Download. Version [2022.1].
+        Full CITES Trade Database Download. Version [2025.1].
         Compiled by UNEP-WCMC, Cambridge, UK for the CITES Secretariat, Geneva, Switzerland.
         Available at: [https://trade.cites.org](https://trade.cites.org)
         """
