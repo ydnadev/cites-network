@@ -39,9 +39,9 @@ class NetworkGraphBuilder:
         self,
         data,
         countries,
-        exporter_color="blue",
-        importer_color="red",
-        default_color="grey",
+        exporter_color="#1f77b4",
+        importer_color="#ff7f0e",
+        default_color="black",
     ):
         """Initialize the network graph builder.
 
@@ -198,9 +198,14 @@ class NetworkGraphBuilder:
         edge_traces = []
         for src, dst in self.graph.edges():
             if src == ex_code and dst == im_code:
-                edge_color = "blue"
+                # COLOR EDGE PURPLE IF TRADE FROM EXPORTER TO IMPORTER SELECTIONS
+                edge_color = "#9467bd"
+            elif src == ex_code:
+                # COLOR EDGE BLUE FOR EXPORTS FROM EXPORTER SELECTION
+                edge_color = "#1f77b4"
             elif dst == im_code:
-                edge_color = "red"
+                # COLOR EDGE ORANGE FOR IMPORTS TO IMPORTER SELECTION
+                edge_color = "#ff7f0e"
             else:
                 edge_color = "grey"
             lon0, lat0 = node_pos[src]
@@ -236,7 +241,7 @@ class NetworkGraphBuilder:
         self.map = go.Figure(edge_traces + [node_trace])
         self.map.update_layout(
             geo_scope="world",  # focuses on the whole world
-            geo=dict(showland=True, landcolor="lightgray"),
+            geo=dict(showland=True, landcolor="#dce9dd"),
         )
 
         return self.map
