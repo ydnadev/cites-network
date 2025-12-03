@@ -86,9 +86,9 @@ class CITESDataManager:
         #        "WHERE Taxon = ? AND Year >= ? AND Year <= ?"
         #    )
         if year_range:
-            query += " AND cast(Year as integer) >= ? AND cast(Year as integer) <= ? AND Exporter is not null and Importer is not null "
+            query += " AND cast(Year as integer) >= ? AND cast(Year as integer) <= ? AND Exporter is not null and Importer is not null"
             params.extend(year_range)
-        if term != "ALL":
+        if term != "ALL" and term != None:
             query += " AND Term = ?"
             params.append(term)
         #return self.duckdb_conn.execute(
@@ -96,31 +96,60 @@ class CITESDataManager:
         #).fetchdf()
         return self.duckdb_conn.execute(query, params).fetchdf()
 
-    def filter_by_taxon(self, taxon, year_range=None, term=None, purpose=None):
-        query = f"SELECT Exporter, Importer, sum(cast(Quantity as integer)) as Weight FROM '{self.parquet_path}' WHERE Taxon = ?"
+    def get_source_for_taxon(self, taxon, year_range=None, term=None, purpose=None):
+        query = f"SELECT DISTINCT Source FROM '{self.parquet_path}' WHERE Taxon = ?"
+        params = [taxon]
+        # if year_range:
+        #    query = (
+        #        f"SELECT DISTINCT Purpose FROM '{self.parquet_path}' "
+        #        "WHERE Taxon = ? AND Year >= ? AND Year <= ?"
+        #    )
+        if year_range:
+            query += " AND cast(Year as integer) >= ? AND cast(Year as integer) <= ? AND Exporter is not null and Importer is not null"
+            params.extend(year_range)
+        if term != "ALL" and term != None:
+            query += " AND Term = ?"
+            params.append(term)
+        if purpose != "ALL" and purpose != None:
+            query += " AND Purpose = ?"
+            params.append(purpose)
+        # return self.duckdb_conn.execute(
+        #    query, [taxon, year_range[0], year_range[1]]
+        # ).fetchdf()
+        return self.duckdb_conn.execute(query, params).fetchdf()
+
+    def filter_by_taxon(self, taxon, year_range=None, term=None, purpose=None, source=None):
+        query = f"SELECT Exporter, Importer, sum(cast(Quantity as integer)) * 10 as Weight FROM '{self.parquet_path}' WHERE Taxon = ?"
         params = [taxon]
         if year_range:
             query += " AND cast(Year as integer) >= ? AND cast(Year as integer) <= ? AND Exporter is not null and Importer is not null "
             params.extend(year_range)
-        if term:
+        if term != "ALL" and term != None:
             query += " AND Term = ?"
             params.append(term)
-        if purpose:
+        if purpose != "ALL" and purpose != None:
             query += " AND Purpose = ?"
             params.append(purpose)
+        if source != "ALL" and source != None:
+            query += " AND Source = ?"
+            params.append(source)
         query += "group by Exporter, Importer"
         return self.duckdb_conn.execute(query, params).fetchdf()
 
-    def filter_by_taxon_results(self, taxon, year_range=None, term=None, purpose=None):
+    def filter_by_taxon_results(self, taxon, year_range=None, term=None, purpose=None, source=None):
         query = f"SELECT * FROM '{self.parquet_path}' WHERE Taxon = ?"
         params = [taxon]
         if year_range:
-            query += " AND cast(Year as integer) >= ? AND cast(Year as integer) <= ? AND Exporter is not null and Importer is not null "
+            query += " AND cast(Year as integer) >= ? AND cast(Year as integer) <= ? AND Exporter is not null and Importer is not null"
             params.extend(year_range)
-        if term:
+        if term != "ALL" and term != None:
             query += " AND Term = ?"
             params.append(term)
-        if purpose:
+        if purpose != "ALL" and purpose != None:
             query += " AND Purpose = ?"
             params.append(purpose)
+        if source != "ALL" and source != None:
+            query += " AND Source = ?"
+            params.append(source)
+        print(query)
         return self.duckdb_conn.execute(query, params).fetchdf()

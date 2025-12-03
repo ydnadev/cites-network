@@ -131,21 +131,22 @@ class DashboardUI:
         terms_df = self.data_manager.get_terms_for_taxon(taxon, year_range)
         term_options = ["ALL"] + sorted(terms_df["Term"].unique())
         term = st.selectbox("Select Term", term_options)
+
         purpose_df = self.data_manager.get_purpose_for_taxon(taxon, year_range, term)
         purpose_df = purpose_df[purpose_df["Purpose"].notna()]
         purpose_map = {
-            "B": "Breeding in captivity or artificial propagation",
-            "E": "Educational",
-            "G": "Botanical garden",
-            "H": "Hunting trophy",
-            "L": "Law enforcement/judicial/forensic",
-            "M": "Medical (including biomedical research)",
-            "N": "Reintroduction or introduction into the wild",
-            "P": "Personal",
-            "Q": "Circus or travelling exhibition",
-            "S": "Scientific",
-            "T": "Commercial",
-            "Z": "Zoo",
+            "B": "B - Breeding in captivity or artificial propagation",
+            "E": "E - Educational",
+            "G": "G - Botanical garden",
+            "H": "H - Hunting trophy",
+            "L": "L - Law enforcement/judicial/forensic",
+            "M": "M - Medical (including biomedical research)",
+            "N": "N - Reintroduction or introduction into the wild",
+            "P": "P - Personal",
+            "Q": "C - Circus or travelling exhibition",
+            "S": "S - Scientific",
+            "T": "T - Commercial",
+            "Z": "Z - Zoo",
         }
         inverse_purpose_map = {v: k for k, v in purpose_map.items()}
         purpose_df["Purposes"] = purpose_df["Purpose"].map(purpose_map)
@@ -161,22 +162,47 @@ class DashboardUI:
         else:
             purpose = inverse_purpose_map.get(purpose_choice)
 
-        return taxon, year_range, term, purpose
+        source_df = self.data_manager.get_source_for_taxon(taxon, year_range, term, purpose)
+        source_df = source_df[source_df["Source"].notna()]
+        source_map = {
+            "A": "A - Plant artificially propagated",
+            "C": "C - Animal bred in captivity",
+            "D": "D - Appendix I animal bred in captivity",
+            "F": "F - Born in captivity, not under C/D",
+            "I": "I - Confiscated/seized specimen",
+            "O": "O - Pre-convention specimen",
+            "R": "R - Ranched specimen",
+            "U": "U - Unknown",
+            "W": "W - Taken from wild",
+            "X": "X - Taken from marine-environment no jurisdiction",
+            "Y": "Y - Assisted production plants",
+        }
+        inverse_source_map = {v: k for k, v in source_map.items()}
+        source_df["Sources"] = source_df["Source"].map(source_map)
+        source_options = ["ALL"] + sorted(source_df["Sources"].unique())
+        source_choice = st.selectbox("Select Source", source_options)
 
-    def show_results(self, taxon, year_range, term):
-        """Filter data based on selections and show a results summary.
-
-        Filters the trade dataset using the selected taxon, year range,
-        and term, then displays either a brief heading for the results
-        section or a message prompting the user to expand the filters.
-        """
-
-        filtered_data = self.data_manager.filter_by_taxon(taxon, year_range, term, purpose)
-
-        if not filtered_data.empty:
-            st.write("Trade Weights by Countries")
+        if source_choice == "ALL":
+            source = None
         else:
-            st.write("No results, please try again.")
+            source = inverse_source_map.get(source_choice)
+
+        return taxon, year_range, term, purpose, source
+
+    #def show_results(self, taxon, year_range, term):
+    #    """Filter data based on selections and show a results summary.
+
+    #    Filters the trade dataset using the selected taxon, year range,
+    #    and term, then displays either a brief heading for the results
+    #    section or a message prompting the user to expand the filters.
+    #    """
+
+    #    filtered_data = self.data_manager.filter_by_taxon(taxon, year_range, term, purpose)
+
+    #    if not filtered_data.empty:
+    #        st.write("Trade Weights by Countries")
+    #    else:
+    #        st.write("No results, please try again.")
 
     def graph_options(self, filtered_data, countries):
         """Provide controls for selecting exporter/importer and graph options.
@@ -225,7 +251,7 @@ class DashboardUI:
             0
         ]
 
-        weighted = st.checkbox("Weighted Edges by Quantity of Trades")
+        weighted = st.checkbox("Weighted Edges by Quantity of Trades", value=True)
         centrality_method = st.radio(
             "Scale Nodes by Centrality Measures",
             ["Degree", "In-Degree", "Out-Degree", "Betweenness", "Closeness"],

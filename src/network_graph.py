@@ -41,7 +41,7 @@ class NetworkGraphBuilder:
         countries,
         exporter_color="#1f77b4",
         importer_color="#ff7f0e",
-        default_color="black",
+        default_color="rgb(0,0,0)",
     ):
         """Initialize the network graph builder.
 
@@ -218,7 +218,7 @@ class NetworkGraphBuilder:
                 lat=[lat0, lat1],
                 mode="lines",
                 line=dict(width=width, color=edge_color),
-                opacity=0.5,
+                opacity=0.75,
                 showlegend=False,
                 hoverinfo="none",
             )
@@ -231,7 +231,8 @@ class NetworkGraphBuilder:
             lon=node_lons,
             lat=node_lats,
             mode="markers",
-            marker=dict(size=node_sizes, color=node_colors),
+            marker=dict(size=node_sizes, color=node_colors, opacity=0.75),
+            line=dict(color='rgb(0,0,0)', width=0),
             text=node_names,
             hoverinfo="text",
             showlegend=False,
@@ -241,7 +242,8 @@ class NetworkGraphBuilder:
         self.map = go.Figure(edge_traces + [node_trace])
         self.map.update_layout(
             geo_scope="world",  # focuses on the whole world
-            geo=dict(showland=True, landcolor="#dce9dd"),
+            geo=dict(showland=True, landcolor="#a7c8a9", showcoastlines=False),
+            plot_bgcolor="white",
         )
 
         return self.map
