@@ -26,9 +26,9 @@ def main():
     # Main UI controls and results loop
     col1, col2 = st.columns(2)
     with col1:
-        taxon, year_range, term = dashboard.controls(itis)
-        filtered_data = data_manager.filter_by_taxon(taxon, year_range, term)
-        filtered_results = data_manager.filter_by_taxon_results(taxon, year_range, term)
+        taxon, year_range, term, purpose = dashboard.controls(itis)
+        filtered_data = data_manager.filter_by_taxon(taxon, year_range, term, purpose)
+        filtered_results = data_manager.filter_by_taxon_results(taxon, year_range, term, purpose)
         if not filtered_data.empty:
             graph_builder.data = filtered_data
             exporter_sel, importer_sel, weighted, centrality_method = (

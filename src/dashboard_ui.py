@@ -122,14 +122,42 @@ class DashboardUI:
             taxon_list = taxa_full[taxa_full["vernacular_name"] == taxon_select]
         taxon = taxon_list["complete_name"].values[0]
         year_range = st.slider("Select Trade Years", 1974, 2025, (1975, 2024))
+
         terms_df = self.data_manager.get_terms_for_taxon(taxon, year_range)
         term_options = ["ALL"] + sorted(terms_df["Term"].unique())
         term = st.selectbox("Select Term", term_options)
 
+        purpose_df = self.data_manager.get_purpose_for_taxon(taxon, year_range)
+        purpose_df = purpose_df[purpose_df["Purpose"].notna()]
+        purpose_map = {
+            "B": "Breeding in captivity or artificial propagation",
+            "E": "Educational",
+            "G": "Botanical garden",
+            "H": "Hunting trophy",
+            "L": "Law enforcement/judicial/forensic",
+            "M": "Medical (including biomedical research)",
+            "N": "Reintroduction or introduction into the wild",
+            "P": "Personal",
+            "Q": "Circus or travelling exhibition",
+            "S": "Scientific",
+            "T": "Commercial",
+            "Z": "Zoo",
+        }
+        inverse_purpose_map = {v: k for k, v in purpose_map.items()}
+        purpose_df["Purposes"] = purpose_df["Purpose"].map(purpose_map)
+        purpose_options = ["ALL"] + sorted(purpose_df["Purposes"].unique())
+        purpose_choice = st.selectbox("Select Purpose", purpose_options)
+
+
         if term == "ALL":
             term = None
 
-        return taxon, year_range, term
+        if purpose_choice == "ALL":
+            purpose = None
+        else:
+            purpose = inverse_purpose_map.get(purpose_choice)
+
+        return taxon, year_range, term, purpose
 
     def show_results(self, taxon, year_range, term):
         """Filter data based on selections and show a results summary.
@@ -139,7 +167,7 @@ class DashboardUI:
         section or a message prompting the user to expand the filters.
         """
 
-        filtered_data = self.data_manager.filter_by_taxon(taxon, year_range, term)
+        filtered_data = self.data_manager.filter_by_taxon(taxon, year_range, term, purpose)
 
         if not filtered_data.empty:
             st.write("Trade Weights by Countries")
