@@ -184,7 +184,7 @@ class NetworkGraphBuilder:
         node_names = []
         for node in self.graph.nodes():
             match = countries.loc[countries["country"] == node, "name"]
-            node_names.append(match.values[0] if not match.empty else "XX")
+            node_names.append(match.values[0] if not match.empty else "Unknown")
 
         # Adjust node sizes
         node_sizes = [
@@ -203,9 +203,9 @@ class NetworkGraphBuilder:
             elif src == ex_code:
                 # COLOR EDGE BLUE FOR EXPORTS FROM EXPORTER SELECTION
                 edge_color = "#1f77b4"
-            elif dst == im_code:
-                # COLOR EDGE ORANGE FOR IMPORTS TO IMPORTER SELECTION
-                edge_color = "#ff7f0e"
+            #elif dst == im_code:
+            #    # COLOR EDGE ORANGE FOR IMPORTS TO IMPORTER SELECTION
+            #    edge_color = "#ff7f0e"
             else:
                 edge_color = "grey"
             lon0, lat0 = node_pos[src]
