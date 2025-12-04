@@ -41,7 +41,7 @@ def main():
                     exporter_sel, importer_sel, weighted, centrality_method
                 )
                 dashboard.render_map(countries, exporter_sel, importer_sel)
-                st.dataframe(filtered_results)
+                st.dataframe(filtered_results, hide_index=True)
 
         else:
             st.markdown(":red[*No results, please try again.*]")
