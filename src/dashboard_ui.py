@@ -129,7 +129,8 @@ class DashboardUI:
         year_range = st.slider("Select Trade Years", 1974, 2025, (1975, 2024))
 
         terms_df = self.data_manager.get_terms_for_taxon(taxon, year_range)
-        term_options = ["ALL"] + sorted(terms_df["Term"].unique())
+        #term_options = ["ALL"] + sorted(terms_df["Term"].unique())
+        term_options = sorted(terms_df["Term"].unique())
         term = st.selectbox("Select Term", term_options)
 
         purpose_df = self.data_manager.get_purpose_for_taxon(taxon, year_range, term)

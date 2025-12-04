@@ -41,7 +41,7 @@ def main():
                     exporter_sel, importer_sel, weighted, centrality_method
                 )
                 dashboard.render_map(countries, exporter_sel, importer_sel)
-                st.markdown("*Note - NULL values for Importer/Exporter translated to XX with coordinates 0,0.*")
+                st.markdown("*Note - Map generated with Exporter reported data to avoid duplication.*")
                 st.dataframe(filtered_results, hide_index=True)
 
         else:

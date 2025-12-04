@@ -119,10 +119,11 @@ class CITESDataManager:
         return self.duckdb_conn.execute(query, params).fetchdf()
 
     def filter_by_taxon(self, taxon, year_range=None, term=None, purpose=None, source=None):
-        query = f"SELECT Exporter, Importer, sum(cast(Quantity as integer)) as Weight FROM '{self.parquet_path}' WHERE Taxon = ?"
+        #query = f"SELECT Exporter, Importer, Unit, sum(cast(Quantity as integer)) as Weight FROM '{self.parquet_path}' WHERE Taxon = ?"
+        query = f"""SELECT Exporter, Importer, Unit, sum(cast(Quantity as integer)) as Weight FROM "{self.parquet_path}" WHERE Taxon = ? and "Reporter.type" = 'E'"""
         params = [taxon]
         if year_range:
-            query += " AND cast(Year as integer) >= ? AND cast(Year as integer) <= ? AND Exporter is not null and Importer is not null "
+            query += " AND cast(Year as integer) >= ? AND cast(Year as integer) <= ? AND Exporter is not null and Importer is not null"
             params.extend(year_range)
         if term != "ALL" and term != None:
             query += " AND Term = ?"
@@ -133,7 +134,7 @@ class CITESDataManager:
         if source != "ALL" and source != None:
             query += " AND Source = ?"
             params.append(source)
-        query += "group by Exporter, Importer"
+        query += "group by Exporter, Importer, Unit"
         return self.duckdb_conn.execute(query, params).fetchdf()
 
     def filter_by_taxon_results(self, taxon, year_range=None, term=None, purpose=None, source=None):
@@ -152,3 +153,4 @@ class CITESDataManager:
             query += " AND Source = ?"
             params.append(source)
         return self.duckdb_conn.execute(query, params).fetchdf()
+
