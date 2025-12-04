@@ -30,7 +30,6 @@ def main():
         filtered_data = data_manager.filter_by_taxon(taxon, year_range, term, purpose, source)
         filtered_results = data_manager.filter_by_taxon_results(taxon, year_range, term, purpose, source)
         if not filtered_data.empty:
-            st.dataframe(filtered_data)
             graph_builder.data = filtered_data
             exporter_sel, importer_sel, weighted, centrality_method = (
                 dashboard.graph_options(filtered_data, countries)
