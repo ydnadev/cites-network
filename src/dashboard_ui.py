@@ -122,7 +122,7 @@ class DashboardUI:
         else:
             taxon_select = st.selectbox(
                 "Select Taxon - Common Name",
-                sorted(taxa_full["vernacular_name"].str.title().unique()),
+                sorted(taxa_full["vernacular_name"].unique()),
             )
             taxon_list = taxa_full[taxa_full["vernacular_name"] == taxon_select]
         taxon = taxon_list["complete_name"].values[0]
