@@ -73,9 +73,12 @@ class CITESDataManager:
             f"SELECT DISTINCT Term FROM '{self.parquet_path}' "
             "WHERE Taxon = ? AND Year >= ? AND Year <= ?"
         )
-        return self.duckdb_conn.execute(
-            query, [taxon, year_range[0], year_range[1]]
-        ).fetchdf()
+        try:
+            return self.duckdb_conn.execute(
+                query, [taxon, year_range[0], year_range[1]]
+            ).fetchdf()
+        except duckdb.ProgrammingError as e:
+            return pd.DataFrame()
 
     def get_purpose_for_taxon(self, taxon, year_range=None, term=None):
         query = f"SELECT DISTINCT Purpose FROM '{self.parquet_path}' WHERE Taxon = ?"
@@ -94,7 +97,10 @@ class CITESDataManager:
         #return self.duckdb_conn.execute(
         #    query, [taxon, year_range[0], year_range[1]]
         #).fetchdf()
-        return self.duckdb_conn.execute(query, params).fetchdf()
+        try:
+            return self.duckdb_conn.execute(query, params).fetchdf()
+        except duckdb.ProgrammingError as e:
+            return pd.DataFrame()
 
     def get_source_for_taxon(self, taxon, year_range=None, term=None, purpose=None):
         query = f"SELECT DISTINCT Source FROM '{self.parquet_path}' WHERE Taxon = ?"
@@ -116,7 +122,11 @@ class CITESDataManager:
         # return self.duckdb_conn.execute(
         #    query, [taxon, year_range[0], year_range[1]]
         # ).fetchdf()
-        return self.duckdb_conn.execute(query, params).fetchdf()
+        #return self.duckdb_conn.execute(query, params).fetchdf()
+        try:
+            return self.duckdb_conn.execute(query, params).fetchdf()
+        except duckdb.ParserException as e:
+            return pd.DataFrame()
 
     def filter_by_taxon(self, taxon, year_range=None, term=None, purpose=None, source=None):
         #query = f"SELECT Exporter, Importer, Unit, sum(cast(Quantity as integer)) as Weight FROM '{self.parquet_path}' WHERE Taxon = ?"
@@ -135,7 +145,10 @@ class CITESDataManager:
             query += " AND Source = ?"
             params.append(source)
         query += "group by Exporter, Importer, Unit"
-        return self.duckdb_conn.execute(query, params).fetchdf()
+        try:
+            return self.duckdb_conn.execute(query, params).fetchdf()
+        except duckdb.ParserException as e:
+            return pd.DataFrame()
 
     def filter_by_taxon_results(self, taxon, year_range=None, term=None, purpose=None, source=None):
         query = f"SELECT * FROM '{self.parquet_path}' WHERE Taxon = ?"
@@ -152,5 +165,9 @@ class CITESDataManager:
         if source != "ALL" and source != None:
             query += " AND Source = ?"
             params.append(source)
-        return self.duckdb_conn.execute(query, params).fetchdf()
+        #return self.duckdb_conn.execute(query, params).fetchdf()
+        try:
+            return self.duckdb_conn.execute(query, params).fetchdf()
+        except duckdb.ParserException as e:
+            return pd.DataFrame()
 
