@@ -211,7 +211,7 @@ class NetworkGraphBuilder:
             lon0, lat0 = node_pos[src]
             lon1, lat1 = node_pos[dst]
             weight = self.graph[src][dst].get("Weight", 1)
-            width = max(1, weight * 0.01)  # scaling
+            width = max(1, weight * 0.1)  # scaling
 
             edge_trace = go.Scattergeo(
                 lon=[lon0, lon1],
