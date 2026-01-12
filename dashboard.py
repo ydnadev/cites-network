@@ -43,7 +43,7 @@ def main():
                 dashboard.render_map(countries, exporter_sel, importer_sel)
                 st.markdown("*Note - Map generated with Exporter reported data to avoid duplication.*")
                 if not filtered_results.empty:
-                    st.dataframe(filtered_results)
+                    st.dataframe(filtered_results, hide_index=True)
         else:
             with col2:
                 st.markdown(":red[*No Exporter reported results to map, please try again.*]")
